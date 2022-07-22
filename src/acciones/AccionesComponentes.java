@@ -10,7 +10,10 @@ import javax.swing.JOptionPane;
 import java.awt.event.KeyEvent;
 //Otras importaciones
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 public class AccionesComponentes{
@@ -42,15 +45,20 @@ public class AccionesComponentes{
     }
     
     public DefaultListModel agregarCarpetas(DefaultListModel modelo){
-        String[] rutas = explorador.abrirExploradorCarpetas(abrirCarpetasEn);
+        List<String> subCarpetas = new ArrayList<>();
+        subCarpetas = Arrays.asList(explorador.abrirExploradorCarpetas(abrirCarpetasEn));
         int tamLista = modelo.getSize();
-        if(!rutas[0].equals("")){ 
-            for(int indice = 0; indice < rutas.length; indice++){
+        
+        AccionesGenerales.ordenarListado(subCarpetas);
+        
+        if(!subCarpetas.isEmpty()){ 
+            
+            for(int indice = 0; indice < subCarpetas.size(); indice++){
                 if( (tamLista + indice) > 15){
                     JOptionPane.showMessageDialog(null, "Limite de 16 carpetas");
                     break;
                 }else{
-                    modelo.addElement(rutas[indice]);
+                    modelo.addElement(subCarpetas.get(indice));
                 }
             }
         }
@@ -60,8 +68,8 @@ public class AccionesComponentes{
     
     public DefaultListModel agregarCarpetasRecursivamente(DefaultListModel modelo){
         String[] rutas = explorador.abrirExploradorCarpetas(abrirCarpetasEn);
-        Queue<String> carpetas = new LinkedList<String>();
-        
+        List<String> subCarpetas = new ArrayList<>();
+        Queue<String> raices = new LinkedList<String>();
         
         int tamLista = modelo.getSize();
         
@@ -69,18 +77,23 @@ public class AccionesComponentes{
             
             for(int indice = 0; indice < rutas.length; indice++){
                 
-                if( (tamLista + indice) > 15){
+                if( (subCarpetas.size() + tamLista + indice) > 15){
                     JOptionPane.showMessageDialog(null, "Limite de 16 carpetas");
                     
                     break;
                 }else{
-                    
-                    modelo.addElement(rutas[indice]);
-                    carpetas.add(rutas[indice]);
+                    subCarpetas.add(rutas[indice]);
+                    raices.add(rutas[indice]);
                 }
             }
             
-            buscarSubCarpetas(carpetas, modelo);
+            buscarSubCarpetas(raices, subCarpetas, modelo.getSize());
+            
+            AccionesGenerales.ordenarListado(subCarpetas);
+            
+            while(modelo.getSize() < 16 && !subCarpetas.isEmpty()){
+                modelo.addElement(subCarpetas.remove(0)); 
+            }
             
             return modelo;
         }else{
@@ -90,7 +103,7 @@ public class AccionesComponentes{
         
     }
     
-    private DefaultListModel buscarSubCarpetas(Queue <String> directoriosRaiz, DefaultListModel modelo){
+    private List<String> buscarSubCarpetas(Queue <String> directoriosRaiz, List<String> subCarpetas, int tamModelo){
         
         if(!directoriosRaiz.isEmpty()){
             String carpetaRaiz = directoriosRaiz.remove();
@@ -100,33 +113,22 @@ public class AccionesComponentes{
             File[] archivosCarpetaRaíz = directorioRaiz.listFiles();
             
             for(File archivo : archivosCarpetaRaíz){
-                /*if(archivo.isDirectory() && modelo.getSize() < 16){
-                    directoriosRaiz.add(archivo.getAbsolutePath() + "\\");
-                    modelo.addElement(archivo.getAbsolutePath() + "\\");
-                    buscarSubCarpetas(directoriosRaiz, modelo);
-                }*/
                 
                 if(archivo.isDirectory() ){
                     
-                    if(modelo.getSize() < 16){
-                        directoriosRaiz.add(archivo.getAbsolutePath() + "\\");
-                        modelo.addElement(archivo.getAbsolutePath() + "\\");
-                        buscarSubCarpetas(directoriosRaiz, modelo);
-                        //System.out.println(archivo.getAbsolutePath());
-                    }else{
-                        JOptionPane.showMessageDialog(null, "No se han podido agregar las carpetas a partir de: \n" + archivo.getAbsolutePath() + "\nLimite de 16 carpetas.\n" );
-                        break;
-                    }
+                    directoriosRaiz.add(archivo.getAbsolutePath() + "\\");
+                    subCarpetas.add(archivo.getAbsolutePath() + "\\");
+                    buscarSubCarpetas(directoriosRaiz, subCarpetas, tamModelo);
 
                 }
                 
             }
             
         }else{
-            return modelo;
+            return subCarpetas;
         }
             
-        return modelo;
+        return subCarpetas;
     }
     
     public DefaultListModel agregarArchivo(DefaultListModel modelo){
@@ -191,69 +193,18 @@ public class AccionesComponentes{
     public Queue<String> obtenerDireccionesLista(DefaultListModel modelo){
         Queue <String> direcciones = new LinkedList<String>();
         int cantidadCarpetas = modelo.getSize();
-        //String[] direcciones = new String[cantidadCarpetas];
         
         for (int indice = 0; indice < cantidadCarpetas; indice++) {
             
             if(explorador.existeArchivo(modelo.getElementAt(indice).toString())){
                 direcciones.add(modelo.getElementAt(indice).toString());
-            }else{
-                //JOptionPane.showMessageDialog(null, "La dirección " + );
             }
 
         }
         
         return direcciones; 
     }
-    /*
-    public DefaultListModel colocarImagenes(DefaultListModel modelo, Queue<String> direccionesCarpetas){
-        
-        int cantidadCarpetas = direccionesCarpetas.size();
-        String[] listado;
-        String nombreImagen;
-        String direccionImagen;
-        String direccionCarpeta;
-        String[] extensionesPermitidas = explorador.getExtensionesPermitidas();
-        
-        //Recaba los nombres de las imagenes por carpeta.
-        for (int indiceCarpeta = 0; indiceCarpeta < cantidadCarpetas; indiceCarpeta++) {
-            //Obtiene el contenido de la carpeta.
-            direccionCarpeta = direccionesCarpetas.remove();
-            File carpeta = new File( direccionCarpeta );
-            
-            //Enlista el contenido de la carpeta.
-            listado = carpeta.list();
-            //Filtra el contenido de la carpeta dejando solo las extensiones validas.
-            for (int indiceImagen = 0; indiceImagen < listado.length; indiceImagen++) {
-                //Selecciona la imagen, una por una.
-                nombreImagen = listado[indiceImagen];
-                //Verifica que contengan la extensión.
-                int i = 0;
-                while(i < extensionesPermitidas.length){
-                    
-                    //Compara las terminaciones.
-                    String extensionMin = "." + extensionesPermitidas[i].toLowerCase();
-                    String extensionMayu = "." + extensionesPermitidas[i].toUpperCase();
-                    
-                    if(nombreImagen.endsWith( extensionMin ) || nombreImagen.endsWith( extensionMayu )){
-                        //Coloca la dirección completa.
-                        direccionImagen =  direccionCarpeta + nombreImagen;
-                        //La agrega al modelo.
-                        modelo.addElement(direccionImagen);
-                        break;//Termina y continua con el siguiente.
-                    }
-                    
-                    i++;//Continua con la siguiente extensión.
-                }
-                
-            }
 
-        }
-        
-        return modelo;
-        
-    }*/
-    /////////////////////////////////////////////////////////////////////////////////////
     public DefaultListModel colocarImagenes(DefaultListModel modelo, Queue<String> direccionesCarpetas){
         
         int cantidadCarpetas = direccionesCarpetas.size();
@@ -270,7 +221,7 @@ public class AccionesComponentes{
             File carpeta = new File( direccionCarpeta );
             
             //Enlista el contenido de la carpeta.
-            listado = carpeta.list();
+            listado = AccionesGenerales.ordenarListado(Arrays.asList(carpeta.list()));
             //Filtra el contenido de la carpeta dejando solo las extensiones validas.
             for (int indiceImagen = 0; indiceImagen < listado.length; indiceImagen++) {
                 

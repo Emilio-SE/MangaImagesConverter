@@ -18,7 +18,7 @@ public class AccionesExploradorArchivos {
     
     public String[] abrirExploradorArchivos(String AbrirEn){
         
-        String[] ruta;
+        String[] rutas;
         
         JFileChooser explorador = new JFileChooser();
         
@@ -41,15 +41,10 @@ public class AccionesExploradorArchivos {
         
         if (ejecucion == JFileChooser.APPROVE_OPTION){
             File[] listadoArchivos = explorador.getSelectedFiles();
-            ruta = new String[listadoArchivos.length];
-            
-            for (int indice = 0; indice < listadoArchivos.length; indice++) {
-                ruta[indice] = listadoArchivos[indice].getAbsolutePath();
-            }
-            
-            return ruta;
+
+            return rutas = AccionesGenerales.ordenarListado( AccionesGenerales.FileAListString(listadoArchivos) );
         }else{
-            return ruta = new String[]{""};
+            return rutas = new String[]{""};
         }
          
     }
@@ -85,7 +80,6 @@ public class AccionesExploradorArchivos {
             
             return ruta;
 
-//ruta = fichero.getAbsolutePath() + "\\";
         }else{
             return ruta = new String[]{""};
         }

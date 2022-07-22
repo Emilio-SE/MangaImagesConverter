@@ -1,7 +1,11 @@
 package acciones;
 
-import java.util.Arrays;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 
 public class AccionesGenerales {
@@ -64,9 +68,44 @@ public class AccionesGenerales {
         
     }
     
-    /*public boolean margenesValidos(String margenes){
+    public static List<String> FileAListString(File[] listadoArchivos){
         
+        List<String> rutas = new ArrayList<>();
         
-        return;
-    }*/
+        for (File ruta : listadoArchivos) {
+            rutas.add(ruta.getAbsolutePath());
+        }
+        
+        return rutas;
+        
+    }
+    
+    public static String[] ordenarListado( List<String> rutas ){
+          
+        Collections.sort(rutas, new Comparator<String>() {
+            @Override
+            public int compare(String cad1, String cad2) {
+
+                String cad1ParteStr = cad1.replaceAll("\\d", "");
+                String cad2ParteStr = cad2.replaceAll("\\d", "");
+
+
+                if(cad1ParteStr.equalsIgnoreCase(cad2ParteStr))
+                {
+                    return extraeNum(cad1) - extraeNum(cad2);
+                }
+                return cad1.compareTo(cad2);
+            }
+
+
+            int extraeNum(String str) {
+                String num = str.replaceAll("\\D", "");
+                return num.isEmpty() ? 0 : Integer.parseInt(num);
+            }
+
+        });
+         
+        return rutas.toArray(new String[0]);
+          
+     }
 }
