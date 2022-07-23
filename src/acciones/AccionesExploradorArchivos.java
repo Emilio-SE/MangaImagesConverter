@@ -1,13 +1,16 @@
 package acciones;
 
 //Importacion elementos awt y Swing
+import java.awt.Desktop;
 import javax.swing.JFrame;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 //Otras importaciones
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import javax.swing.JOptionPane;
 
 public class AccionesExploradorArchivos {
     private String[] extensionesPermitidas;
@@ -51,7 +54,7 @@ public class AccionesExploradorArchivos {
     
     public String[] abrirExploradorCarpetas(String AbrirEn){
         
-        String[] ruta;
+        String[] rutas;
         
         JFileChooser explorador = new JFileChooser();
         
@@ -72,16 +75,16 @@ public class AccionesExploradorArchivos {
         if (ejecucion == JFileChooser.APPROVE_OPTION){
             
             File[] listadoCarpetas = explorador.getSelectedFiles();
-            ruta = new String[listadoCarpetas.length];
+            rutas = new String[listadoCarpetas.length];
             
             for (int indice = 0; indice < listadoCarpetas.length; indice++) {
-                ruta[indice] = listadoCarpetas[indice].getAbsolutePath() + "\\";
+                rutas[indice] = listadoCarpetas[indice].getAbsolutePath() + "\\";
             }
             
-            return ruta;
+            return rutas;
 
         }else{
-            return ruta = new String[]{""};
+            return rutas = new String[]{""};
         }
          
         
@@ -112,6 +115,18 @@ public class AccionesExploradorArchivos {
         File archivo = new File(ruta);
         
         return archivo.exists();
+    }
+    
+    public void abrirArchvo(String ruta){
+        if (Desktop.isDesktopSupported()) {
+            try {
+                Desktop escritorio = Desktop.getDesktop();
+                File documento = new File(ruta);
+                escritorio.open(documento);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Ha ocurrido un error al intentar abrir el archivo.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
     
 }

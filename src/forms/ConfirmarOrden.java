@@ -23,6 +23,8 @@ import java.awt.event.MouseListener;
 //Importación de Clases
 import diseno.DisenioComponentes;
 import acciones.*;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 //Otras Importaciones
 import java.io.IOException;
 import java.util.LinkedList;
@@ -161,6 +163,7 @@ public class ConfirmarOrden extends JFrame{
         btnGenerarPDF.addActionListener(new EventosComponentes());
         btnCancelar.addActionListener(new  EventosComponentes());
         lstImagenes.addMouseListener(new EventosMouse());
+        this.addWindowListener(new EventoCerrarForm());
     }
     
     private void colocarImagen(String rutaImagen){            
@@ -212,6 +215,17 @@ public class ConfirmarOrden extends JFrame{
                     Object rutaImagen = clic.getModel().getElementAt(indice);
                     colocarImagen(rutaImagen.toString());
                     panelImagen.add(lblImagen);
+                }
+
+            }
+            
+            if(e.getClickCount() == 2){
+
+                int indice = clic.locationToIndex(e.getPoint());
+                
+                if (indice != -1) {
+                    Object rutaImagen = clic.getModel().getElementAt(indice);
+                    explorador.abrirArchvo(rutaImagen.toString());
                 }
 
             }
@@ -291,6 +305,34 @@ public class ConfirmarOrden extends JFrame{
             }
         }
      
+    }
+    
+    public class EventoCerrarForm implements WindowListener{
+
+        @Override
+        public void windowClosing(WindowEvent e) {
+        
+            int respuesta = JOptionPane.showConfirmDialog(null, "Al salir perderá todo cambio realizado en esta ventana. \n\n¿Desea salir? ", "Salir", JOptionPane.YES_NO_OPTION);
+                
+            if(respuesta == JOptionPane.YES_OPTION){
+                dispose();
+            }
+            
+        }
+        
+        @Override
+        public void windowOpened(WindowEvent e) {}
+        @Override
+        public void windowClosed(WindowEvent e) {}
+        @Override
+        public void windowIconified(WindowEvent e) {}
+        @Override
+        public void windowDeiconified(WindowEvent e) {}
+        @Override
+        public void windowActivated(WindowEvent e) {}
+        @Override
+        public void windowDeactivated(WindowEvent e) {}
+        
     }
     
 }

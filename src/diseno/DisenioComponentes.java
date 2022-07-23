@@ -38,7 +38,7 @@ public class DisenioComponentes {
     }
     
     public void disenioList(JList lst){
-        lst.setPreferredSize(new Dimension(50, 270));
+        //lst.setPreferredSize(new Dimension(50, 270));
         lst.setBackground(new Color(253, 253, 253));
         lst.setBorder(BorderFactory.createLineBorder(new Color(160,160,160)));
         lst.setFont(new Font( "Arial", Font.BOLD, 12));

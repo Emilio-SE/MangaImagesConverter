@@ -45,21 +45,15 @@ public class AccionesComponentes{
     }
     
     public DefaultListModel agregarCarpetas(DefaultListModel modelo){
-        List<String> subCarpetas = new ArrayList<>();
-        subCarpetas = Arrays.asList(explorador.abrirExploradorCarpetas(abrirCarpetasEn));
-        int tamLista = modelo.getSize();
+        List<String> rutasCarpetas = new ArrayList<>();
+        rutasCarpetas = Arrays.asList(explorador.abrirExploradorCarpetas(abrirCarpetasEn));
         
-        AccionesGenerales.ordenarListado(subCarpetas);
+        AccionesGenerales.ordenarListado(rutasCarpetas);
         
-        if(!subCarpetas.isEmpty()){ 
+        if(!rutasCarpetas.isEmpty()){ 
             
-            for(int indice = 0; indice < subCarpetas.size(); indice++){
-                if( (tamLista + indice) > 15){
-                    JOptionPane.showMessageDialog(null, "Limite de 16 carpetas");
-                    break;
-                }else{
-                    modelo.addElement(subCarpetas.get(indice));
-                }
+            for(int indice = 0; indice < rutasCarpetas.size(); indice++){
+                    modelo.addElement(rutasCarpetas.get(indice));
             }
         }
 
@@ -67,32 +61,25 @@ public class AccionesComponentes{
     }
     
     public DefaultListModel agregarCarpetasRecursivamente(DefaultListModel modelo){
-        String[] rutas = explorador.abrirExploradorCarpetas(abrirCarpetasEn);
-        List<String> subCarpetas = new ArrayList<>();
-        Queue<String> raices = new LinkedList<String>();
+        String[] rutasCarpetas = explorador.abrirExploradorCarpetas(abrirCarpetasEn);
+        List<String> rutasSubCarpetas = new ArrayList<>();
+        Queue<String> rutasCarpetasRaices = new LinkedList<String>();
         
-        int tamLista = modelo.getSize();
-        
-        if(!rutas[0].equals("")){ 
+        if(!rutasCarpetas[0].equals("")){ 
             
-            for(int indice = 0; indice < rutas.length; indice++){
+            for(String rutaCarpeta : rutasCarpetas){
                 
-                if( (subCarpetas.size() + tamLista + indice) > 15){
-                    JOptionPane.showMessageDialog(null, "Limite de 16 carpetas");
-                    
-                    break;
-                }else{
-                    subCarpetas.add(rutas[indice]);
-                    raices.add(rutas[indice]);
-                }
+                    rutasSubCarpetas.add(rutaCarpeta);
+                    rutasCarpetasRaices.add(rutaCarpeta);
+
             }
             
-            buscarSubCarpetas(raices, subCarpetas, modelo.getSize());
+            buscarSubCarpetas(rutasCarpetasRaices, rutasSubCarpetas);
             
-            AccionesGenerales.ordenarListado(subCarpetas);
+            AccionesGenerales.ordenarListado(rutasSubCarpetas);
             
-            while(modelo.getSize() < 16 && !subCarpetas.isEmpty()){
-                modelo.addElement(subCarpetas.remove(0)); 
+            while(!rutasSubCarpetas.isEmpty()){
+                modelo.addElement(rutasSubCarpetas.remove(0)); 
             }
             
             return modelo;
@@ -103,10 +90,10 @@ public class AccionesComponentes{
         
     }
     
-    private List<String> buscarSubCarpetas(Queue <String> directoriosRaiz, List<String> subCarpetas, int tamModelo){
+    private List<String> buscarSubCarpetas(Queue <String> directoriosRaices, List<String> subDirectorios){
         
-        if(!directoriosRaiz.isEmpty()){
-            String carpetaRaiz = directoriosRaiz.remove();
+        if(!directoriosRaices.isEmpty()){
+            String carpetaRaiz = directoriosRaices.remove();
 
             File directorioRaiz = new File(carpetaRaiz);
             
@@ -116,90 +103,142 @@ public class AccionesComponentes{
                 
                 if(archivo.isDirectory() ){
                     
-                    directoriosRaiz.add(archivo.getAbsolutePath() + "\\");
-                    subCarpetas.add(archivo.getAbsolutePath() + "\\");
-                    buscarSubCarpetas(directoriosRaiz, subCarpetas, tamModelo);
+                    directoriosRaices.add(archivo.getAbsolutePath() + "\\");
+                    subDirectorios.add(archivo.getAbsolutePath() + "\\");
+                    buscarSubCarpetas(directoriosRaices, subDirectorios);
 
                 }
                 
             }
             
         }else{
-            return subCarpetas;
+            return subDirectorios;
         }
             
-        return subCarpetas;
+        return subDirectorios;
     }
     
     public DefaultListModel agregarArchivo(DefaultListModel modelo){
         String rutas[] = explorador.abrirExploradorArchivos(abrirArchivosEn);
         
         if(!rutas[0].equals("")){
-            for(int indice = 0; indice < rutas.length; indice++){
+            /*for(int indice = 0; indice < rutas.length; indice++){
                 modelo.addElement(rutas[indice]);
+            }*/
+            
+            for(String ruta : rutas){
+                modelo.addElement(ruta);
             }
+            
         }
 
         return modelo;
     }
     
     public boolean eliminarCarpeta(DefaultListModel modelo, JList lista){
-        int indiceElementoSeleccionado = lista.getSelectedIndex();
+        int[] indiceElementosSeleccionados = lista.getSelectedIndices();
+        int control = 0;
+        boolean bool = true;
         
-        if(indiceElementoSeleccionado != -1){
-            modelo.remove(indiceElementoSeleccionado);
-            return true;
-        }else{
-            return false;
+        for(int indiceElementoSeleccionado : indiceElementosSeleccionados){
+            
+            if(indiceElementoSeleccionado != -1){
+                try {
+                    modelo.remove(indiceElementoSeleccionado - control);
+                    control++;
+                } catch (IndexOutOfBoundsException e) {
+                    bool = false;
+                }
+            }else{
+                bool = false;
+            }
+
+        } 
+        
+        if(modelo.getSize() > 0){
+            int foco = indiceElementosSeleccionados[indiceElementosSeleccionados.length - 1] - control;
+        
+            if(foco < modelo.getSize() - 1){
+                lista.setSelectedIndex(foco + 1);
+            }else if(foco == modelo.getSize() - 1){
+                lista.setSelectedIndex(foco);
+            }
         }
+        
+        return bool;
     }
-    
+
     public DefaultListModel subirElementoList(DefaultListModel modelo, JList lista){
         
-        String rutaCima;
+        String rutaCima, rutaActual;
+        int[] indicesElementosSeleccionados = lista.getSelectedIndices();
+        int[] selectedIndices = new int[indicesElementosSeleccionados.length];
+        int i = 0, indiceSuperior;
         
-        int indiceElementoSeleccionado = lista.getSelectedIndex();
-        
-        if(indiceElementoSeleccionado != -1 && indiceElementoSeleccionado != 0){
-            //Obtengo el elemento superior.
-            rutaCima = modelo.getElementAt( indiceElementoSeleccionado - 1 ).toString();
-            //Elimino el elemento superior.
-            modelo.remove(indiceElementoSeleccionado - 1);
-            //El elemento superior es agregado en la posición actual de tal manera que queda debajo del antiguo elemento seleccionado.
-            modelo.add(indiceElementoSeleccionado, rutaCima);
+        for(int indiceElementoSeleccionado : indicesElementosSeleccionados){
+            if(indiceElementoSeleccionado != -1 && indiceElementoSeleccionado != 0){
+                indiceSuperior = indiceElementoSeleccionado - 1;
+                
+                rutaCima = modelo.getElementAt( indiceSuperior ).toString();
+                rutaActual = modelo.getElementAt( indiceElementoSeleccionado ).toString();
+                modelo.setElementAt(rutaCima, indiceElementoSeleccionado);
+                modelo.setElementAt(rutaActual, indiceSuperior);
+                
+                selectedIndices[i] = indiceSuperior;
+                i++;
+            }
         }
+        
+        lista.setSelectedIndices(selectedIndices);
         
         return modelo;
     }
-    
+
     public DefaultListModel bajarElementoList(DefaultListModel modelo, JList lista){
         
-        String rutaSeleccionado;
+        String rutaAbajo, rutaActual;
+        int[] indicesElementosSeleccionados = lista.getSelectedIndices();
+        int[] selectedIndices = new int[indicesElementosSeleccionados.length];
+        int indice, indiceAbajo;
         
-        int indiceElementoSeleccionado = lista.getSelectedIndex();
-        
-        if(indiceElementoSeleccionado != -1 && indiceElementoSeleccionado != (modelo.getSize() - 1)){
-            //Obtengo el elemento seleccionado.
-            rutaSeleccionado = modelo.getElementAt( indiceElementoSeleccionado ).toString();
-            //Elimino el elemento seleccionado.
-            modelo.remove(indiceElementoSeleccionado);
-            //El elemento seleccionado es agregado en la posición siguiente de tal manera que queda debajo del antiguo elemento seleccionado.
-            modelo.add(indiceElementoSeleccionado + 1, rutaSeleccionado);
+        for(int i = selectedIndices.length - 1; i >= 0; i--){
+            indice = indicesElementosSeleccionados[i];
+            
+            if(indice != -1 && indice != (modelo.getSize() - 1)){
+                indiceAbajo = indice + 1;
+                
+                rutaAbajo = modelo.getElementAt( indiceAbajo ).toString();
+                rutaActual = modelo.getElementAt( indice ).toString();
+                modelo.setElementAt(rutaAbajo, indice);
+                modelo.setElementAt(rutaActual, indiceAbajo);
+                
+                selectedIndices[i] = indiceAbajo;
+            }else if(indice == (modelo.getSize() - 1)){
+                selectedIndices[i] = modelo.getSize() - 1;
+            }
         }
-        
+        lista.setSelectedIndices(selectedIndices);
+
         return modelo;
     }
     //////////////////
     public Queue<String> obtenerDireccionesLista(DefaultListModel modelo){
         Queue <String> direcciones = new LinkedList<String>();
         int cantidadCarpetas = modelo.getSize();
+        int rutasPerdidas = 0;
         
         for (int indice = 0; indice < cantidadCarpetas; indice++) {
             
             if(explorador.existeArchivo(modelo.getElementAt(indice).toString())){
                 direcciones.add(modelo.getElementAt(indice).toString());
+            }else{
+                rutasPerdidas++;
             }
 
+        }
+        
+        if(rutasPerdidas > 0){
+            JOptionPane.showMessageDialog(null, rutasPerdidas + " carpetas no han podido ser cargadas.", "Error al cargar carpetas", JOptionPane.WARNING_MESSAGE);
         }
         
         return direcciones; 
@@ -224,18 +263,18 @@ public class AccionesComponentes{
             listado = AccionesGenerales.ordenarListado(Arrays.asList(carpeta.list()));
             //Filtra el contenido de la carpeta dejando solo las extensiones validas.
             for (int indiceImagen = 0; indiceImagen < listado.length; indiceImagen++) {
-                
+
                 nombreImagen = listado[indiceImagen];                
 
                 if( esImagen(nombreImagen) ){
                     direccionImagen =  direccionCarpeta + nombreImagen;
                     modelo.addElement(direccionImagen);                    
                 }
-                
-            }   
-                
-        }
 
+            } 
+   
+        }
+        
         return modelo;
         
     }

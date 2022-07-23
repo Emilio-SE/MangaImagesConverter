@@ -24,11 +24,16 @@ import java.awt.event.KeyListener;
 //Importación de Clases
 import diseno.DisenioComponentes;
 import acciones.*;
+import java.awt.Dimension;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import propiedades.Constantes;
 import propiedades.InformacionGenerales;
 //Otras Importaciones
 import java.util.Queue;
 import java.util.LinkedList;
+import javax.swing.JScrollPane;
+import javax.swing.ListModel;
 
 public class FormPrincipal extends JFrame{
 
@@ -130,7 +135,8 @@ public class FormPrincipal extends JFrame{
         rbtnPul = new JRadioButton("pul");
         rbtnPts = new JRadioButton("pts");
         modelo = new DefaultListModel();
-        lstCarpetas = new JList(modelo);
+        //lstCarpetas = new JList(modelo);
+        lstCarpetas = new redimensionamiento(modelo, new Dimension(50, 270));//agregado
         //Instancias de Clases.
         eventosComponentes = new EventosComponentes();
         disenio = new DisenioComponentes();
@@ -142,7 +148,7 @@ public class FormPrincipal extends JFrame{
 
     private void valoresPredeterminados(){
         //Valores de Ventana.
-        this.setTitle("MANGA IMAGES CONVERTER (Ver. 2.1)");
+        this.setTitle("MANGA IMAGES CONVERTER (Ver. 2.2 - Versión En Pruebas)");
         this.setResizable(false);
         this.setSize(600, 750);
         getContentPane().setBackground(new Color(236, 246, 247));
@@ -404,7 +410,7 @@ public class FormPrincipal extends JFrame{
         gbc.gridwidth = 3;
         gbc.insets = new Insets(0, 30, 0, 30);
         gbc.fill = GridBagConstraints.BOTH;
-        add(lstCarpetas, gbc);
+        add(new JScrollPane(lstCarpetas),gbc);
         
         //Fila 12
         gbc.gridy = 12;
@@ -443,6 +449,25 @@ public class FormPrincipal extends JFrame{
 
     }
 
+    public class redimensionamiento<E> extends JList<E> {
+    
+        private Dimension visibilidadDelPanel;
+
+        public redimensionamiento(ListModel<E> modelo, Dimension visibilidadDelPanel) {
+            super(modelo);
+            this.visibilidadDelPanel = visibilidadDelPanel;
+        }
+
+        @Override
+        public Dimension getPreferredScrollableViewportSize() {
+            if (visibilidadDelPanel != null) {
+                return visibilidadDelPanel;
+            }
+            return super.getPreferredScrollableViewportSize();
+        }
+
+    }
+    
     private void eventos(){
         btnPortada.addActionListener(eventosComponentes);
         btnAjustesPredeterminados.addActionListener(eventosComponentes);
@@ -467,6 +492,7 @@ public class FormPrincipal extends JFrame{
         tfRutaGuardarDoc.getDocument().addDocumentListener(new cambiosTextField());
         tfMargenes.getDocument().addDocumentListener(new cambiosTextField());
         tfMargenes.addKeyListener(new textoIngresado());
+        lstCarpetas.addMouseListener(new EventosMouse());
     }
 
     private void actualizarMetadatos(){
@@ -503,12 +529,42 @@ public class FormPrincipal extends JFrame{
             }
         }
         
+        if(!rutaGuardarDocumento.endsWith("\\") && !rutaGuardarDocumento.endsWith("/")){
+                rutaGuardarDocumento += "\\";
+        }
+
         if(explorador.existeArchivo( rutaGuardarDocumento )){
             informacion.setRutaGuardarDocumento( rutaGuardarDocumento );
         }
         
         disenio.desactivarBtnActualizarMeta(btnActualizar);
         
+    }
+    
+    public class EventosMouse implements MouseListener{  
+        @Override
+        public void mousePressed(MouseEvent e) {
+            JList clic = (JList) e.getSource();
+            
+            if(e.getClickCount() == 2){
+
+                int indice = clic.locationToIndex(e.getPoint());
+                
+                if (indice != -1) {
+                    Object rutaImagen = clic.getModel().getElementAt(indice);
+                    explorador.abrirArchvo(rutaImagen.toString());
+                }
+
+            }
+        }
+        @Override
+        public void mouseClicked(MouseEvent e) {}
+        @Override
+        public void mouseReleased(MouseEvent e) {}
+        @Override
+        public void mouseEntered(MouseEvent e) {}
+        @Override
+        public void mouseExited(MouseEvent e) {}
     }
     
     public class textoIngresado implements KeyListener{
@@ -601,19 +657,15 @@ public class FormPrincipal extends JFrame{
 
             //BOTÓN AGREGAR
             if (e.getSource() == btnAgregar ) {
-                if(modelo.getSize() < 16){
-                    
-                    int respuesta = JOptionPane.showConfirmDialog(null, "¿Desea agregar subcarpetas?", "Subcarpetas", JOptionPane.YES_NO_OPTION);
-                    
-                    if(respuesta == 0){
-                        accionesComponentes.agregarCarpetasRecursivamente(modelo);
-                    }else if(respuesta == 1){
-                        accionesComponentes.agregarCarpetas(modelo);
-                    }
 
-                }else{
-                    JOptionPane.showMessageDialog(null, "Limite de 16 carpetas");
+                int respuesta = JOptionPane.showConfirmDialog(null, "¿Desea agregar subcarpetas?", "Subcarpetas", JOptionPane.YES_NO_OPTION);
+
+                if(respuesta == JOptionPane.YES_OPTION){
+                    accionesComponentes.agregarCarpetasRecursivamente(modelo);
+                }else if(respuesta == 1){
+                    accionesComponentes.agregarCarpetas(modelo);
                 }
+
            }
 
             //BOTÓN CARGAR
@@ -629,7 +681,7 @@ public class FormPrincipal extends JFrame{
                     if(!direccionesCarpetas.isEmpty()){
                         ConfirmarOrden confirmarOrden = new ConfirmarOrden(informacion, direccionesCarpetas);
                     }else{
-                        JOptionPane.showMessageDialog(null, "La o las carpetas no se han podido cargar, asegurese que todos los directorios sean existentes.", "Error al cargar carpetas", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "La o las carpetas no se han podido cargar, asegurese que todos los directorios sean existentes.", "Error al cargar carpetas", JOptionPane.ERROR_MESSAGE);
                     }
 
                 }else{
@@ -659,5 +711,21 @@ public class FormPrincipal extends JFrame{
         }
 
     }
+
+    /*public class efectoMouse implements MouseMotionListener{
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            if(e.){
+                
+            }
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            
+        }
+        
+    }*/
     
 }
