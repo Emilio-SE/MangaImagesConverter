@@ -50,11 +50,12 @@ public class AccionesComponentes{
         
         AccionesGenerales.ordenarListado(rutasCarpetas);
         
-        if(!rutasCarpetas.isEmpty()){ 
+        if(!rutasCarpetas.get(0).equals("")){ 
             
-            for(int indice = 0; indice < rutasCarpetas.size(); indice++){
+                for(int indice = 0; indice < rutasCarpetas.size(); indice++){
                     modelo.addElement(rutasCarpetas.get(indice));
-            }
+                }
+
         }
 
         return modelo;

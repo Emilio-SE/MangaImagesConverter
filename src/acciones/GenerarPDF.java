@@ -13,12 +13,14 @@ import com.itextpdf.kernel.pdf.PdfNumber;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
+import java.io.FileNotFoundException;
 //Importaciones Clases
 import propiedades.InformacionGenerales;
 import propiedades.Constantes;
 //Otras Importaciones
 import java.io.IOException;
 import java.util.Queue;
+import javax.swing.JOptionPane;
 
 public class GenerarPDF{
     //Declaración de Clases
@@ -37,11 +39,27 @@ public class GenerarPDF{
     }
     
     public int crearPDF() throws IOException {
-         
+        
+        OrientacionPaginaEvento orientacion = new OrientacionPaginaEvento();
+        Document documento = colocarMetadatos(orientacion);
+        
+        int cantidadImagenes = direccionesImagenes.size();
+        
+        // -----------Cola sin imagenes-----------
+        cantidadImagenes = noImagenesAgregadas(cantidadImagenes);
+        
+        // -----------Colocar imagenes en PDF-----------
+        cantidadImagenes = colocarImagenesEnPDF(documento, cantidadImagenes, orientacion);
+
+        documento.close();
+        
+        return cantidadImagenes;
+    }
+    
+    private Document colocarMetadatos (OrientacionPaginaEvento orientacion) throws FileNotFoundException{
         PdfWriter titulo = new PdfWriter(informacion.getRutaGuardarDocumento() + informacion.getTituloPDF() + ".pdf");
         PdfDocument pdf = new PdfDocument(titulo);
-        
-        OrientacionPaginaEvento eventHandler = new OrientacionPaginaEvento();
+        Document documento = new Document(pdf);
         
         // -----------Metadatos-----------
         if(informacion.getTipoHoja() == 1){
@@ -50,8 +68,8 @@ public class GenerarPDF{
             pdf.setDefaultPageSize(PageSize.LETTER);
         }
         
-        pdf.addEventHandler(PdfDocumentEvent.START_PAGE, eventHandler);
-        Document documento = new Document(pdf);
+        pdf.addEventHandler(PdfDocumentEvent.START_PAGE, orientacion);
+        
         
         float[] margenes = informacion.getMargenesFloat();
         
@@ -65,17 +83,24 @@ public class GenerarPDF{
         metadatos.setTitle(informacion.getTituloPDF());
         metadatos.setAuthor(informacion.getAutorPDF());
         
-        // -----------Cola sin imagenes-----------
-        int cantidadImagenes = direccionesImagenes.size();
-        int erroresImagenes = 0;
+        return documento;
+    }
+    
+    private int noImagenesAgregadas(int cantidadImagenes){
+
         if(cantidadImagenes == 0){
             direccionesImagenes.add(System.getProperty("user.dir") + "\\src\\Multimedia\\ERROR-NO-IMAGE.jpg");
             cantidadImagenes = 1;
         }
         
-        // -----------Colocar imagenes en PDF-----------
+        return cantidadImagenes;
+        
+    }
+    
+    private int colocarImagenesEnPDF(Document documento, int cantidadImagenes, OrientacionPaginaEvento orientacion){
         float largoHoja = 0;
         float altoHoja = 0;
+        int erroresImagenes = 0;
         
         for (int i = 0; i < cantidadImagenes; i++) {
             //El catch espera por si se ha pasado algún archivo que no sea imagen y ocasiona un error.
@@ -92,12 +117,12 @@ public class GenerarPDF{
 
 
                 if(imagen.getImageWidth() < imagen.getImageHeight()){
-                    eventHandler.setOrientation(VERTICAL);
+                    orientacion.setOrientation(VERTICAL);
                     imagen.setHeight(altoHoja);
                     imagen.setWidth(largoHoja);
                     documento.add(imagen);
                 }else{
-                    eventHandler.setOrientation(HORIZONTAL);
+                    orientacion.setOrientation(HORIZONTAL);
                     imagen.setRotationAngle(Math.toRadians(90));
 
                     imagen.setHeight(largoHoja);
@@ -110,10 +135,12 @@ public class GenerarPDF{
             }
             
         }
-
-        documento.close();
-        cantidadImagenes -= erroresImagenes;
-        return cantidadImagenes;
+        
+        if(erroresImagenes > 0){
+            JOptionPane.showMessageDialog(null, erroresImagenes + " imagenes no han podido ser agregadas.", "Error al cargar imagenes", JOptionPane.WARNING_MESSAGE);
+        }
+        
+        return cantidadImagenes -= erroresImagenes;
     }
     
     private static class OrientacionPaginaEvento implements IEventHandler {

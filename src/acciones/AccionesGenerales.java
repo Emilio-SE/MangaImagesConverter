@@ -89,18 +89,18 @@ public class AccionesGenerales {
                 String cad1ParteStr = cad1.replaceAll("\\d", "");
                 String cad2ParteStr = cad2.replaceAll("\\d", "");
 
-
                 if(cad1ParteStr.equalsIgnoreCase(cad2ParteStr))
                 {
-                    return extraeNum(cad1) - extraeNum(cad2);
+                    int op = (int) (extraeNum(cad1) - extraeNum(cad2));
+                    return op;
                 }
                 return cad1.compareTo(cad2);
             }
 
 
-            int extraeNum(String str) {
+            long extraeNum(String str) {
                 String num = str.replaceAll("\\D", "");
-                return num.isEmpty() ? 0 : Integer.parseInt(num);
+                return num.isEmpty() ? 0 : Long.parseLong(num);
             }
 
         });

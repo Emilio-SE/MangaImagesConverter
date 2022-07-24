@@ -135,7 +135,6 @@ public class FormPrincipal extends JFrame{
         rbtnPul = new JRadioButton("pul");
         rbtnPts = new JRadioButton("pts");
         modelo = new DefaultListModel();
-        //lstCarpetas = new JList(modelo);
         lstCarpetas = new redimensionamiento(modelo, new Dimension(50, 270));//agregado
         //Instancias de Clases.
         eventosComponentes = new EventosComponentes();
@@ -148,7 +147,7 @@ public class FormPrincipal extends JFrame{
 
     private void valoresPredeterminados(){
         //Valores de Ventana.
-        this.setTitle("MANGA IMAGES CONVERTER (Ver. 2.2 - Versión En Pruebas)");
+        this.setTitle("MANGA IMAGES CONVERTER (Ver. 2.2)");
         this.setResizable(false);
         this.setSize(600, 750);
         getContentPane().setBackground(new Color(236, 246, 247));
