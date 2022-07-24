@@ -492,7 +492,7 @@ public class FormPrincipal extends JFrame{
         tfMargenes.getDocument().addDocumentListener(new cambiosTextField());
         tfMargenes.addKeyListener(new textoIngresado());
         lstCarpetas.addMouseListener(new EventosMouse());
-        lstCarpetas.addKeyListener(new eventosTeclado());
+        lstCarpetas.addKeyListener(new EventosTeclado());
     }
 
     private void actualizarMetadatos(){
@@ -567,7 +567,7 @@ public class FormPrincipal extends JFrame{
         public void mouseExited(MouseEvent e) {}
     }
     
-    public class eventosTeclado implements KeyListener{
+    public class EventosTeclado implements KeyListener{
 
         @Override
         public void keyTyped(KeyEvent e) {}

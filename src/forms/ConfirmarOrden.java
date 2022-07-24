@@ -165,7 +165,7 @@ public class ConfirmarOrden extends JFrame{
         btnGenerarPDF.addActionListener(new EventosComponentes());
         btnCancelar.addActionListener(new  EventosComponentes());
         lstImagenes.addMouseListener(new EventosMouse());
-        lstImagenes.addKeyListener(new eventosTeclado());
+        lstImagenes.addKeyListener(new EventosTeclado());
         this.addWindowListener(new EventoCerrarForm());
     }
     
@@ -184,6 +184,16 @@ public class ConfirmarOrden extends JFrame{
             this.invalidate();
             this.validate();
             actualizarForm++;
+        }
+    }
+    
+    private void mostrarImagenEnCambioDeFoco(){
+        int indice = lstImagenes.getSelectedIndex();
+
+        if (indice != -1) {
+            Object rutaImagen = modelo.getElementAt(indice);
+            colocarImagen(rutaImagen.toString());
+            panelImagen.add(lblImagen);
         }
     }
     
@@ -209,21 +219,12 @@ public class ConfirmarOrden extends JFrame{
         @Override
         public void mousePressed(MouseEvent e) {
             JList clic = (JList) e.getSource();
+            
             if (e.getClickCount() == 1) {
-                    
-                int indice = clic.locationToIndex(e.getPoint());
-
-                if (indice != -1) {
-
-                    Object rutaImagen = clic.getModel().getElementAt(indice);
-                    colocarImagen(rutaImagen.toString());
-                    panelImagen.add(lblImagen);
-                }
-
+                mostrarImagenEnCambioDeFoco();
             }
             
             if(e.getClickCount() == 2){
-
                 int indice = clic.locationToIndex(e.getPoint());
                 
                 if (indice != -1) {
@@ -243,7 +244,7 @@ public class ConfirmarOrden extends JFrame{
         public void mouseExited(MouseEvent e) {}
     }
     
-    public class eventosTeclado implements KeyListener{
+    public class EventosTeclado implements KeyListener{
 
         @Override
         public void keyTyped(KeyEvent e) {}
@@ -252,11 +253,16 @@ public class ConfirmarOrden extends JFrame{
         public void keyPressed(KeyEvent e) {
             if (e.getKeyCode()==KeyEvent.VK_DELETE){
                 accionesComponentes.eliminarElementoList(modelo, lstImagenes);
+                mostrarImagenEnCambioDeFoco();
             }
         }
 
         @Override
-        public void keyReleased(KeyEvent e) {}
+        public void keyReleased(KeyEvent e) {
+            if(e.getKeyCode()==KeyEvent.VK_DOWN || e.getKeyCode()==KeyEvent.VK_UP){
+                mostrarImagenEnCambioDeFoco(); 
+            }
+        }
 
     }
     
