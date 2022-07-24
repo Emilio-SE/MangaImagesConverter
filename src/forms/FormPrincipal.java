@@ -541,20 +541,12 @@ public class FormPrincipal extends JFrame{
         
     }
     
+    
     public class EventosMouse implements MouseListener{  
         @Override
         public void mousePressed(MouseEvent e) {
-            JList clic = (JList) e.getSource();
-            
             if(e.getClickCount() == 2){
-
-                int indice = clic.locationToIndex(e.getPoint());
-                
-                if (indice != -1) {
-                    Object rutaImagen = clic.getModel().getElementAt(indice);
-                    explorador.abrirArchvo(rutaImagen.toString());
-                }
-
+                explorador.abrirRutaEnComputadora(lstCarpetas, modelo);
             }
         }
         @Override
@@ -577,6 +569,11 @@ public class FormPrincipal extends JFrame{
             if (e.getKeyCode()==KeyEvent.VK_DELETE){
                 accionesComponentes.eliminarElementoList(modelo, lstCarpetas);
             }
+            
+            if(e.getKeyCode()==KeyEvent.VK_ENTER){
+                explorador.abrirRutaEnComputadora(lstCarpetas, modelo);
+            }
+            
         }
 
         @Override

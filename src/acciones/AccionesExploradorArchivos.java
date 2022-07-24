@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 
 public class AccionesExploradorArchivos {
@@ -125,6 +127,31 @@ public class AccionesExploradorArchivos {
                 escritorio.open(documento);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "Ha ocurrido un error al intentar abrir el archivo.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    
+    public void abrirRutaEnComputadora(JList lstDirecciones, DefaultListModel modelo){
+        int[] indices = lstDirecciones.getSelectedIndices();
+
+        if(indices.length > 5){
+            int respuesta = JOptionPane.showConfirmDialog(null,"Estas a punto de abrir más de 5 direcciones. \n\n¿Estás seguro de continuar?", "Advertencia",JOptionPane.YES_NO_OPTION);
+            
+            if(respuesta == JOptionPane.YES_OPTION){
+                abrirRutas(indices, modelo);
+            }
+            
+        }else{
+            abrirRutas(indices, modelo);
+        }
+
+    }
+    
+    private void abrirRutas(int[] indices, DefaultListModel modelo){
+        for(int indice : indices){
+            if (indice != -1) {
+                Object rutaImagen = modelo.getElementAt(indice);
+                abrirArchvo(rutaImagen.toString());
             }
         }
     }

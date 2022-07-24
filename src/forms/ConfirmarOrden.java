@@ -218,21 +218,15 @@ public class ConfirmarOrden extends JFrame{
     public class EventosMouse implements MouseListener{  
         @Override
         public void mousePressed(MouseEvent e) {
-            JList clic = (JList) e.getSource();
             
             if (e.getClickCount() == 1) {
                 mostrarImagenEnCambioDeFoco();
             }
             
             if(e.getClickCount() == 2){
-                int indice = clic.locationToIndex(e.getPoint());
-                
-                if (indice != -1) {
-                    Object rutaImagen = clic.getModel().getElementAt(indice);
-                    explorador.abrirArchvo(rutaImagen.toString());
-                }
-
+                explorador.abrirRutaEnComputadora(lstImagenes, modelo);
             }
+            
         }
         @Override
         public void mouseClicked(MouseEvent e) {}
@@ -255,6 +249,11 @@ public class ConfirmarOrden extends JFrame{
                 accionesComponentes.eliminarElementoList(modelo, lstImagenes);
                 mostrarImagenEnCambioDeFoco();
             }
+            
+            if(e.getKeyCode()==KeyEvent.VK_ENTER){
+                explorador.abrirRutaEnComputadora(lstImagenes, modelo);
+            }
+            
         }
 
         @Override
