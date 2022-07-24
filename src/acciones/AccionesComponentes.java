@@ -136,7 +136,7 @@ public class AccionesComponentes{
         return modelo;
     }
     
-    public boolean eliminarCarpeta(DefaultListModel modelo, JList lista){
+    public boolean eliminarElementoList(DefaultListModel modelo, JList lista){
         int[] indiceElementosSeleccionados = lista.getSelectedIndices();
         int control = 0;
         boolean bool = true;

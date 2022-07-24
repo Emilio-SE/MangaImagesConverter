@@ -23,6 +23,8 @@ import java.awt.event.MouseListener;
 //Importación de Clases
 import diseno.DisenioComponentes;
 import acciones.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 //Otras Importaciones
@@ -163,6 +165,7 @@ public class ConfirmarOrden extends JFrame{
         btnGenerarPDF.addActionListener(new EventosComponentes());
         btnCancelar.addActionListener(new  EventosComponentes());
         lstImagenes.addMouseListener(new EventosMouse());
+        lstImagenes.addKeyListener(new eventosTeclado());
         this.addWindowListener(new EventoCerrarForm());
     }
     
@@ -240,6 +243,23 @@ public class ConfirmarOrden extends JFrame{
         public void mouseExited(MouseEvent e) {}
     }
     
+    public class eventosTeclado implements KeyListener{
+
+        @Override
+        public void keyTyped(KeyEvent e) {}
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            if (e.getKeyCode()==KeyEvent.VK_DELETE){
+                accionesComponentes.eliminarElementoList(modelo, lstImagenes);
+            }
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {}
+
+    }
+    
     public class EventosComponentes implements ActionListener{
 
         @Override
@@ -261,7 +281,7 @@ public class ConfirmarOrden extends JFrame{
 
             //BOTÓN ELIMINAR
             if(e.getSource() == btnEliminar){
-                accionesComponentes.eliminarCarpeta(modelo, lstImagenes);
+                accionesComponentes.eliminarElementoList(modelo, lstImagenes);
             }
             
             if(e.getSource() == btnLimpiar){

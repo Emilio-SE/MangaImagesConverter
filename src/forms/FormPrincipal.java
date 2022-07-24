@@ -492,6 +492,7 @@ public class FormPrincipal extends JFrame{
         tfMargenes.getDocument().addDocumentListener(new cambiosTextField());
         tfMargenes.addKeyListener(new textoIngresado());
         lstCarpetas.addMouseListener(new EventosMouse());
+        lstCarpetas.addKeyListener(new eventosTeclado());
     }
 
     private void actualizarMetadatos(){
@@ -564,6 +565,23 @@ public class FormPrincipal extends JFrame{
         public void mouseEntered(MouseEvent e) {}
         @Override
         public void mouseExited(MouseEvent e) {}
+    }
+    
+    public class eventosTeclado implements KeyListener{
+
+        @Override
+        public void keyTyped(KeyEvent e) {}
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            if (e.getKeyCode()==KeyEvent.VK_DELETE){
+                accionesComponentes.eliminarElementoList(modelo, lstCarpetas);
+            }
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {}
+
     }
     
     public class textoIngresado implements KeyListener{
@@ -646,7 +664,7 @@ public class FormPrincipal extends JFrame{
             
             //BOTÓN ELIMINAR
             if(e.getSource() == btnEliminar){
-                accionesComponentes.eliminarCarpeta(modelo, lstCarpetas);
+                accionesComponentes.eliminarElementoList(modelo, lstCarpetas);
             }
             
             //BOTÓN LIMPIAR
