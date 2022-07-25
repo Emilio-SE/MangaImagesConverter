@@ -34,6 +34,7 @@ import java.util.Queue;
 import java.util.LinkedList;
 import javax.swing.JScrollPane;
 import javax.swing.ListModel;
+import javax.swing.SwingUtilities;
 
 public class FormPrincipal extends JFrame{
 
@@ -545,7 +546,7 @@ public class FormPrincipal extends JFrame{
     public class EventosMouse implements MouseListener{  
         @Override
         public void mousePressed(MouseEvent e) {
-            if(e.getClickCount() == 2){
+            if(e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)){
                 explorador.abrirRutaEnComputadora(lstCarpetas, modelo);
             }
         }

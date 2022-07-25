@@ -31,6 +31,7 @@ import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
+import javax.swing.SwingUtilities;
 
 public class ConfirmarOrden extends JFrame{
     //Declaración Componentes.
@@ -223,7 +224,7 @@ public class ConfirmarOrden extends JFrame{
                 mostrarImagenEnCambioDeFoco();
             }
             
-            if(e.getClickCount() == 2){
+            if(e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)){
                 explorador.abrirRutaEnComputadora(lstImagenes, modelo);
             }
             
