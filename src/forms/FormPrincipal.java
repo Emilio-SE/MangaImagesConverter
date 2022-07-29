@@ -491,7 +491,7 @@ public class FormPrincipal extends JFrame{
         tfPortada.getDocument().addDocumentListener(new cambiosTextField());
         tfRutaGuardarDoc.getDocument().addDocumentListener(new cambiosTextField());
         tfMargenes.getDocument().addDocumentListener(new cambiosTextField());
-        tfMargenes.addKeyListener(new textoIngresado());
+        tfMargenes.addKeyListener(new EventosTeclado());
         lstCarpetas.addMouseListener(new EventosMouse());
         lstCarpetas.addKeyListener(new EventosTeclado());
     }
@@ -541,8 +541,7 @@ public class FormPrincipal extends JFrame{
         disenio.desactivarBtnActualizarMeta(btnActualizar);
         
     }
-    
-    
+   
     public class EventosMouse implements MouseListener{  
         @Override
         public void mousePressed(MouseEvent e) {
@@ -563,7 +562,13 @@ public class FormPrincipal extends JFrame{
     public class EventosTeclado implements KeyListener{
 
         @Override
-        public void keyTyped(KeyEvent e) {}
+        public void keyTyped(KeyEvent e) {
+            if(e.getSource() == tfMargenes){
+                int teclaPresionada = (int) e.getKeyChar();
+                accionesComponentes.verificarTeclaIngresada(e, teclaPresionada);
+            }
+            
+        }
 
         @Override
         public void keyPressed(KeyEvent e) {
@@ -575,26 +580,19 @@ public class FormPrincipal extends JFrame{
                 explorador.abrirRutaEnComputadora(lstCarpetas, modelo);
             }
             
+            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z){
+                accionesComponentes.deshacerJList(modelo);
+            }
+            
+            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Y){
+                accionesComponentes.rehacerJList(modelo);
+            }
+            
         }
 
         @Override
         public void keyReleased(KeyEvent e) {}
 
-    }
-    
-    public class textoIngresado implements KeyListener{
-
-        @Override
-        public void keyTyped(KeyEvent e) {
-            int teclaPresionada = (int) e.getKeyChar();
-            accionesComponentes.verificarTeclaIngresada(e, teclaPresionada);
-        }
-        
-        @Override
-        public void keyPressed(KeyEvent e) {}
-        @Override
-        public void keyReleased(KeyEvent e) {}
-        
     }
     
     public class cambiosTextField implements DocumentListener{
@@ -667,7 +665,8 @@ public class FormPrincipal extends JFrame{
             
             //BOTÓN LIMPIAR
             if(e.getSource() == btnLimpiar){
-                modelo.clear();
+                //modelo.clear();
+                accionesComponentes.limpiarJList(modelo, lstCarpetas);
             }
 
             //BOTÓN AGREGAR

@@ -255,6 +255,14 @@ public class ConfirmarOrden extends JFrame{
                 explorador.abrirRutaEnComputadora(lstImagenes, modelo);
             }
             
+            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z){
+                accionesComponentes.deshacerJList(modelo);
+            }
+            
+            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Y){
+                accionesComponentes.rehacerJList(modelo);
+            }
+            
         }
 
         @Override
@@ -288,10 +296,12 @@ public class ConfirmarOrden extends JFrame{
             //BOTÓN ELIMINAR
             if(e.getSource() == btnEliminar){
                 accionesComponentes.eliminarElementoList(modelo, lstImagenes);
+                mostrarImagenEnCambioDeFoco();
             }
             
             if(e.getSource() == btnLimpiar){
-                modelo.clear();
+                //modelo.clear();
+                accionesComponentes.limpiarJList(modelo, lstImagenes);
             }
             
             //BOTÓN CANCELAR
