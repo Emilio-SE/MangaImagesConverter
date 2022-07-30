@@ -51,9 +51,10 @@ public class ConfirmarOrden extends JFrame{
     //Declaración clases.
     InformacionGenerales informacion;
     private DisenioComponentes disenio;
-    private AccionesComponentes accionesComponentes;
+    //private AccionesTextFields accionesTxtFields;
     private AccionesExploradorArchivos explorador;
     private AccionesGenerales accionesGenerales;
+    private AccionesJList accionesJList;
     //Variables Globales.
     private DefaultListModel modelo;
     private Queue<String> direccionesCarpetas;
@@ -86,7 +87,8 @@ public class ConfirmarOrden extends JFrame{
         lstImagenes = new JList(modelo);
         lblImagen = new JLabel();
         //Instancias clases
-        accionesComponentes = new AccionesComponentes( informacion.getRutaAbrirCarpetaEn(), informacion.getRutaAbrirArchivoEn() );
+        //accionesTxtFields = new AccionesTextFields( informacion.getRutaAbrirCarpetaEn(), informacion.getRutaAbrirArchivoEn() );
+        accionesJList = new AccionesJList( informacion.getRutaAbrirCarpetaEn(), informacion.getRutaAbrirArchivoEn() );
         explorador = new AccionesExploradorArchivos();
         disenio = new DisenioComponentes();
         accionesGenerales = new AccionesGenerales();
@@ -105,7 +107,7 @@ public class ConfirmarOrden extends JFrame{
         this.setLayout(new BorderLayout());
         //Otros
         panelCentral = new JScrollPane(lstImagenes);
-        accionesComponentes.colocarImagenes(modelo, direccionesCarpetas);
+        accionesJList.colocarImagenes(modelo, direccionesCarpetas);
         //Valores contenedores
         getContentPane().add(panelBotones, BorderLayout.NORTH);
         getContentPane().add(panelCentral, BorderLayout.CENTER);
@@ -247,7 +249,7 @@ public class ConfirmarOrden extends JFrame{
         @Override
         public void keyPressed(KeyEvent e) {
             if (e.getKeyCode()==KeyEvent.VK_DELETE){
-                accionesComponentes.eliminarElementoList(modelo, lstImagenes);
+                accionesJList.eliminarElementoJList(modelo, lstImagenes);
                 mostrarImagenEnCambioDeFoco();
             }
             
@@ -256,11 +258,11 @@ public class ConfirmarOrden extends JFrame{
             }
             
             if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z){
-                accionesComponentes.deshacerJList(modelo);
+                accionesJList.deshacerJList(modelo);
             }
             
             if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Y){
-                accionesComponentes.rehacerJList(modelo);
+                accionesJList.rehacerJList(modelo);
             }
             
         }
@@ -280,28 +282,28 @@ public class ConfirmarOrden extends JFrame{
         public void actionPerformed(ActionEvent e) {
             //BOTÓN SUBIR
             if(e.getSource() == btnSubirPosicionImagen){
-                accionesComponentes.subirElementoList(modelo, lstImagenes);
+                accionesJList.subirElementoJList(modelo, lstImagenes);
             }
             
             //BOTÓN BAJAR
             if(e.getSource() == btnBajarPosicionImagen){
-                accionesComponentes.bajarElementoList(modelo, lstImagenes);
+                accionesJList.bajarElementoJList(modelo, lstImagenes);
             }
             
             //BOTÓN AGREGAR
             if (e.getSource() == btnAgregar ) {
-                accionesComponentes.agregarArchivo(modelo);
+                accionesJList.agregarArchivo(modelo);
             }
 
             //BOTÓN ELIMINAR
             if(e.getSource() == btnEliminar){
-                accionesComponentes.eliminarElementoList(modelo, lstImagenes);
+                accionesJList.eliminarElementoJList(modelo, lstImagenes);
                 mostrarImagenEnCambioDeFoco();
             }
             
             if(e.getSource() == btnLimpiar){
                 //modelo.clear();
-                accionesComponentes.limpiarJList(modelo, lstImagenes);
+                accionesJList.limpiarJList(modelo, lstImagenes);
             }
             
             //BOTÓN CANCELAR

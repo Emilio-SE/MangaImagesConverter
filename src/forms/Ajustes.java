@@ -18,7 +18,7 @@ import java.awt.event.ActionListener;
 import diseno.DisenioComponentes;
 import propiedades.Propiedades;
 import propiedades.Constantes;
-import acciones.AccionesComponentes;
+import acciones.AccionesTextFields;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.JOptionPane;
@@ -59,7 +59,7 @@ public class Ajustes extends JFrame {
     private Propiedades propiedades;
     private Constantes constantes;
     private EventosComponentes eventosComponentes;
-    private AccionesComponentes accionesComponentes;
+    private AccionesTextFields accionesTxtFields;
     private InformacionGenerales informacion;
     
     public Ajustes(InformacionGenerales informarcion){
@@ -107,7 +107,7 @@ public class Ajustes extends JFrame {
         propiedades = new Propiedades();
         constantes = new Constantes();
         eventosComponentes = new EventosComponentes();
-        accionesComponentes = new AccionesComponentes(informacion.getRutaAbrirCarpetaEn(), informacion.getRutaAbrirArchivoEn());
+        accionesTxtFields = new AccionesTextFields(informacion.getRutaAbrirCarpetaEn(), informacion.getRutaAbrirArchivoEn());
     }
     
     private void valoresPredeterminados(){
@@ -371,22 +371,22 @@ public class Ajustes extends JFrame {
             
             //BOTÓN BUSCAR PORTADA
             if(e.getSource() == btnBuscaPortada){
-                accionesComponentes.colocarRutaArchivo(tfPortada);
+                accionesTxtFields.colocarRutaArchivo(tfPortada);
             }
             
             //BOTÓN GUARDAR
             if(e.getSource() == btnBuscarGuardar){
-                accionesComponentes.colocarRutaCarpeta(tfGuardar);
+                accionesTxtFields.colocarRutaCarpeta(tfGuardar);
             }
             
             //BOTÓN SELECCIONAR ARCHIVO EN
             if(e.getSource() == btnSeleccionarArchivo){
-                accionesComponentes.colocarRutaCarpeta(tfSeleccionarArchivo);
+                accionesTxtFields.colocarRutaCarpeta(tfSeleccionarArchivo);
             }
             
             //BOTÓN SELECCIONAR CARPETA EN
             if(e.getSource() == btnSeleccionarCarpeta){
-                accionesComponentes.colocarRutaCarpeta(tfSeleccionarCarpeta);
+                accionesTxtFields.colocarRutaCarpeta(tfSeleccionarCarpeta);
             }
 
             //BOTÓN GUARDAR
@@ -444,7 +444,7 @@ public class Ajustes extends JFrame {
         @Override
         public void keyTyped(KeyEvent e) {
             int teclaPresionada = (int) e.getKeyChar();
-            accionesComponentes.verificarTeclaIngresada(e, teclaPresionada);
+            accionesTxtFields.verificarTeclaIngresada(e, teclaPresionada);
         }
         
         @Override

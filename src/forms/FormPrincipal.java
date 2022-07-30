@@ -80,7 +80,8 @@ public class FormPrincipal extends JFrame{
     private Constantes constantes;
     private AccionesExploradorArchivos explorador;
     private EventosComponentes eventosComponentes;
-    private AccionesComponentes accionesComponentes;
+    private AccionesTextFields accionesTxtFields;
+    private AccionesJList accionesJList;
     private AccionesGenerales accionesGenerales;
     //Variables Globales.
     private DefaultListModel modelo;
@@ -140,7 +141,8 @@ public class FormPrincipal extends JFrame{
         //Instancias de Clases.
         eventosComponentes = new EventosComponentes();
         disenio = new DisenioComponentes();
-        accionesComponentes = new AccionesComponentes( informacion.getRutaAbrirCarpetaEn(), informacion.getRutaAbrirArchivoEn() );
+        accionesTxtFields = new AccionesTextFields( informacion.getRutaAbrirCarpetaEn(), informacion.getRutaAbrirArchivoEn() );
+        accionesJList = new AccionesJList( informacion.getRutaAbrirCarpetaEn(), informacion.getRutaAbrirArchivoEn() );
         explorador = new AccionesExploradorArchivos();
         accionesGenerales = new AccionesGenerales();
         constantes = new Constantes();
@@ -565,7 +567,7 @@ public class FormPrincipal extends JFrame{
         public void keyTyped(KeyEvent e) {
             if(e.getSource() == tfMargenes){
                 int teclaPresionada = (int) e.getKeyChar();
-                accionesComponentes.verificarTeclaIngresada(e, teclaPresionada);
+                accionesTxtFields.verificarTeclaIngresada(e, teclaPresionada);
             }
             
         }
@@ -573,7 +575,7 @@ public class FormPrincipal extends JFrame{
         @Override
         public void keyPressed(KeyEvent e) {
             if (e.getKeyCode()==KeyEvent.VK_DELETE){
-                accionesComponentes.eliminarElementoList(modelo, lstCarpetas);
+                accionesJList.eliminarElementoJList(modelo, lstCarpetas);
             }
             
             if(e.getKeyCode()==KeyEvent.VK_ENTER){
@@ -581,11 +583,11 @@ public class FormPrincipal extends JFrame{
             }
             
             if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z){
-                accionesComponentes.deshacerJList(modelo);
+                accionesJList.deshacerJList(modelo);
             }
             
             if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Y){
-                accionesComponentes.rehacerJList(modelo);
+                accionesJList.rehacerJList(modelo);
             }
             
         }
@@ -634,7 +636,7 @@ public class FormPrincipal extends JFrame{
             
             //BOTÓN PORTADA
             if (e.getSource() == btnPortada ) {
-                accionesComponentes.colocarRutaArchivo(tfPortada);
+                accionesTxtFields.colocarRutaArchivo(tfPortada);
             }
 
             //BOTÓN AJUSTES PREDETERMINADOS
@@ -645,28 +647,28 @@ public class FormPrincipal extends JFrame{
             
             //BOTÓN GUARDAR DOC
             if(e.getSource() == btnGuardarDoc){
-                accionesComponentes.colocarRutaCarpeta(tfRutaGuardarDoc);
+                accionesTxtFields.colocarRutaCarpeta(tfRutaGuardarDoc);
             }
 
             //BOTÓN SUBIR
             if(e.getSource() == btnSubir){
-                accionesComponentes.subirElementoList(modelo, lstCarpetas);
+                accionesJList.subirElementoJList(modelo, lstCarpetas);
             }
             
             //BOTÓN BAJAR
             if(e.getSource() == btnBajar){
-                accionesComponentes.bajarElementoList(modelo, lstCarpetas);
+                accionesJList.bajarElementoJList(modelo, lstCarpetas);
             }
             
             //BOTÓN ELIMINAR
             if(e.getSource() == btnEliminar){
-                accionesComponentes.eliminarElementoList(modelo, lstCarpetas);
+                accionesJList.eliminarElementoJList(modelo, lstCarpetas);
             }
             
             //BOTÓN LIMPIAR
             if(e.getSource() == btnLimpiar){
                 //modelo.clear();
-                accionesComponentes.limpiarJList(modelo, lstCarpetas);
+                accionesJList.limpiarJList(modelo, lstCarpetas);
             }
 
             //BOTÓN AGREGAR
@@ -675,9 +677,9 @@ public class FormPrincipal extends JFrame{
                 int respuesta = JOptionPane.showConfirmDialog(null, "¿Desea agregar subcarpetas?", "Subcarpetas", JOptionPane.YES_NO_OPTION);
 
                 if(respuesta == JOptionPane.YES_OPTION){
-                    accionesComponentes.agregarCarpetasRecursivamente(modelo);
+                    accionesJList.agregarCarpetasRecursivamente(modelo);
                 }else if(respuesta == 1){
-                    accionesComponentes.agregarCarpetas(modelo);
+                    accionesJList.agregarCarpetas(modelo);
                 }
 
            }
@@ -690,7 +692,7 @@ public class FormPrincipal extends JFrame{
                     actualizarMetadatos();
                     
                     //Comparten misma dirección en memoria.
-                    direccionesCarpetas = accionesComponentes.obtenerDireccionesLista(modelo);
+                    direccionesCarpetas = accionesJList.obtenerDireccionesJLista(modelo);
                     
                     if(!direccionesCarpetas.isEmpty()){
                         ConfirmarOrden confirmarOrden = new ConfirmarOrden(informacion, direccionesCarpetas);
