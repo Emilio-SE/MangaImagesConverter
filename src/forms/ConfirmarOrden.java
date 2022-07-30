@@ -169,6 +169,11 @@ public class ConfirmarOrden extends JFrame{
         btnCancelar.addActionListener(new  EventosComponentes());
         lstImagenes.addMouseListener(new EventosMouse());
         lstImagenes.addKeyListener(new EventosTeclado());
+        btnAgregar.addKeyListener(new EventosTeclado());
+        btnSubirPosicionImagen.addKeyListener(new EventosTeclado());
+        btnBajarPosicionImagen.addKeyListener(new EventosTeclado());
+        btnEliminar.addKeyListener(new EventosTeclado());
+        btnLimpiar.addKeyListener(new EventosTeclado());
         this.addWindowListener(new EventoCerrarForm());
     }
     

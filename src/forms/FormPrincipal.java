@@ -150,7 +150,7 @@ public class FormPrincipal extends JFrame{
 
     private void valoresPredeterminados(){
         //Valores de Ventana.
-        this.setTitle("MANGA IMAGES CONVERTER (Ver. 2.2)");
+        this.setTitle("MANGA IMAGES CONVERTER (Ver. 2.2.1)");
         this.setResizable(false);
         this.setSize(600, 750);
         getContentPane().setBackground(new Color(236, 246, 247));
@@ -496,6 +496,11 @@ public class FormPrincipal extends JFrame{
         tfMargenes.addKeyListener(new EventosTeclado());
         lstCarpetas.addMouseListener(new EventosMouse());
         lstCarpetas.addKeyListener(new EventosTeclado());
+        btnAgregar.addKeyListener(new EventosTeclado());
+        btnBajar.addKeyListener(new EventosTeclado());
+        btnSubir.addKeyListener(new EventosTeclado());
+        btnEliminar.addKeyListener(new EventosTeclado());
+        btnLimpiar.addKeyListener(new EventosTeclado());
     }
 
     private void actualizarMetadatos(){
