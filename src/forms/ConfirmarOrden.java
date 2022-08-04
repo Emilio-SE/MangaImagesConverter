@@ -27,9 +27,15 @@ import java.awt.event.WindowListener;
 import propiedades.InformacionGenerales;
 import diseno.DisenioComponentes;
 import acciones.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
+import java.io.File;
 import observadores.ObservadorEstadoGenerarPDF;
 //Otras Importaciones
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import javax.swing.SwingUtilities;
 
@@ -182,6 +188,20 @@ public class ConfirmarOrden extends JFrame{
         btnEliminar.addKeyListener(new EventosTeclado());
         btnLimpiar.addKeyListener(new EventosTeclado());
         this.addWindowListener(new EventoCerrarForm());
+        
+        lstImagenes.setDropTarget(new DropTarget() {
+            @Override
+            public synchronized void drop(DropTargetDropEvent evt) {
+                try {
+                    evt.acceptDrop(DnDConstants.ACTION_COPY);
+                    List<File> rutas = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                    accionesJList.agregarArchivo(modelo, rutas);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Ha ocurrido un error inesperado "  + ex.getMessage(), "Error inesperado", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        
     }
     
     private void colocarImagen(String rutaImagen){            

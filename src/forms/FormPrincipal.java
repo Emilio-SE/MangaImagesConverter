@@ -25,13 +25,20 @@ import java.awt.event.KeyListener;
 import diseno.DisenioComponentes;
 import acciones.*;
 import java.awt.Dimension;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.util.Arrays;
 import propiedades.Constantes;
 import propiedades.InformacionGenerales;
 //Otras Importaciones
 import java.util.Queue;
 import java.util.LinkedList;
+import java.util.List;
 import javax.swing.JScrollPane;
 import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
@@ -501,6 +508,20 @@ public class FormPrincipal extends JFrame{
         btnSubir.addKeyListener(new EventosTeclado());
         btnEliminar.addKeyListener(new EventosTeclado());
         btnLimpiar.addKeyListener(new EventosTeclado());
+        
+        lstCarpetas.setDropTarget(new DropTarget() {
+            @Override
+            public synchronized void drop(DropTargetDropEvent evt) {
+                try {
+                    evt.acceptDrop(DnDConstants.ACTION_COPY);
+                    List<File> rutas = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                    accionesJList.agregarCarpetas(modelo, rutas);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Ha ocurrido un error inesperado "  + ex.getMessage(), "Error inesperado", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        
     }
 
     private void actualizarMetadatos(){

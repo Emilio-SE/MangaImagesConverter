@@ -30,13 +30,40 @@ public class AccionesJList {
     
     public DefaultListModel agregarArchivo(DefaultListModel modelo){
         String rutas[] = explorador.abrirExploradorArchivos(abrirArchivosEn);
+        colocarArchivosEnModelo(modelo, rutas);
+        return modelo;
+    }
+    
+    public DefaultListModel agregarArchivo(DefaultListModel modelo, List<File> rutas){
         
-        if(!rutas[0].equals("")){
+        List<String> listadoRutas = new ArrayList();
+        
+        for(File ruta : rutas){
+            if(ruta.isFile()){
+                if( explorador.esArchivoValido(ruta.toString()) ){
+                    listadoRutas.add( ruta.toString() );
+                }
+            }
+        }
+        if(listadoRutas.isEmpty()){
+            listadoRutas.add("");
+        }
+        
+        String[] listadoString = new String [listadoRutas.size()];
+        listadoString = AccionesGenerales.ordenarListado(listadoRutas);
+        
+        colocarArchivosEnModelo(modelo, listadoString);
+        
+        return modelo;
+    }
+    
+    private void colocarArchivosEnModelo(DefaultListModel modelo, String[] rutasCarpetas){
+        if(!rutasCarpetas[0].equals("")){
             
             int contadorElementosAgregados = 0;
-            int cantidadElementosArray = rutas.length;
+            int cantidadElementosArray = rutasCarpetas.length;
             
-            for(String ruta : rutas){
+            for(String ruta : rutasCarpetas){
                 contadorElementosAgregados++;
                 modelo.addElement(ruta);
                 if(contadorElementosAgregados == cantidadElementosArray || contadorElementosAgregados == 1){
@@ -47,8 +74,6 @@ public class AccionesJList {
             }
             
         }
-
-        return modelo;
     }
     
     public DefaultListModel agregarCarpetas(DefaultListModel modelo){
@@ -56,7 +81,33 @@ public class AccionesJList {
         rutasCarpetas = Arrays.asList( explorador.abrirExploradorCarpetas(abrirCarpetasEn) );
         
         AccionesGenerales.ordenarListado( rutasCarpetas );
+        colcocarCarpetasEnModelo(modelo, rutasCarpetas);
+
+        return modelo;
+    }
+    
+    public DefaultListModel agregarCarpetas(DefaultListModel modelo, List<File> rutas){
+        List<File> rutasArchivos = new ArrayList<>();
+        List<String> rutasCarpetas = new ArrayList<>();
+        rutasArchivos = rutas;
         
+        for(File ruta : rutasArchivos){
+            if(ruta.isDirectory()){
+                rutasCarpetas.add( ruta.toString() );
+            }
+        }
+        
+        if(rutasCarpetas.isEmpty()){
+            rutasCarpetas.add("");
+        }
+        
+        AccionesGenerales.ordenarListado( rutasCarpetas );
+        colcocarCarpetasEnModelo(modelo, rutasCarpetas);
+
+        return modelo;
+    }
+    
+    private void colcocarCarpetasEnModelo(DefaultListModel modelo, List<String> rutasCarpetas){
         if( !rutasCarpetas.get(0).equals("") ){ 
                 
                 int contadorElementosAgregados = 0;
@@ -75,8 +126,6 @@ public class AccionesJList {
                 }
 
         }
-
-        return modelo;
     }
     
     public DefaultListModel agregarCarpetasRecursivamente(DefaultListModel modelo){

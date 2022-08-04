@@ -119,6 +119,19 @@ public class AccionesExploradorArchivos {
         return archivo.exists();
     }
     
+    public boolean esArchivoValido(String archivo){
+        boolean esValido = false;
+        
+        for(int indice = 0; indice < extensionesPermitidas.length; indice++){
+            if( archivo.toLowerCase().endsWith( "." + extensionesPermitidas[indice] ) ){
+                esValido = true;
+                break;
+            }
+        }
+        
+        return esValido;
+    }
+    
     public void abrirArchvo(String ruta){
         if (Desktop.isDesktopSupported()) {
             try {
