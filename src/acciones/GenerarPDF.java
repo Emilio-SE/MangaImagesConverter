@@ -21,8 +21,6 @@ import propiedades.Constantes;
 import java.io.IOException;
 import java.util.Observable;
 import java.util.Queue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class GenerarPDF extends Observable implements Runnable{
@@ -32,13 +30,13 @@ public class GenerarPDF extends Observable implements Runnable{
     //Otras Declaraciones
     Queue <String> direccionesImagenes;
     //Variables Globales
-    public static final PdfNumber VERTICAL = new PdfNumber(0);
-    public static final PdfNumber HORIZONTAL = new PdfNumber(90);
+    private static final PdfNumber VERTICAL = new PdfNumber(0);
+    private static final PdfNumber HORIZONTAL = new PdfNumber(90);
+    private boolean cancelar = false;
    
-    public GenerarPDF(InformacionGenerales informacionGeneral, Queue <String> direccionesImagenes){
+    public GenerarPDF(InformacionGenerales informacionGeneral){
         this.informacion = informacionGeneral;
         this.constantes = new Constantes();
-        this.direccionesImagenes = direccionesImagenes;
     }
     
     @Override
@@ -46,11 +44,11 @@ public class GenerarPDF extends Observable implements Runnable{
         try {
             crearPDF();
         } catch (IOException ex) {
-            Logger.getLogger(GenerarPDF.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Ha ocurrido un error: " + ex.getMessage());
         }
     }
 
-    public int crearPDF() throws IOException {
+    private int crearPDF() throws IOException {
         
         OrientacionPaginaEvento orientacion = new OrientacionPaginaEvento();
         Document documento = colocarMetadatos(orientacion);
@@ -112,12 +110,13 @@ public class GenerarPDF extends Observable implements Runnable{
     private int colocarImagenesEnPDF(Document documento, int cantidadImagenes, OrientacionPaginaEvento orientacion){
         float largoHoja = 0;
         float altoHoja = 0;
-        int erroresImagenes = 0;
-        int[] datos = new int[2];
+        int erroresImagenes = 0, imagenesAgregadas = 0;
+        int[] datos = new int[3];
         
-        for (int i = 0; i < cantidadImagenes; i++) {
+        for (int numImagen = 0; numImagen < cantidadImagenes; numImagen++) {
             //El catch espera por si se ha pasado algún archivo que no sea imagen y ocasiona un error.
             try{
+                
                 Image imagen = new Image(ImageDataFactory.create( direccionesImagenes.remove() ));
             
                 if(informacion.getTipoHoja() == constantes.TAMANIO_A4){
@@ -143,11 +142,22 @@ public class GenerarPDF extends Observable implements Runnable{
                     documento.add(imagen);
                 }
                 
-                datos[0] = (i + 1);
+                imagenesAgregadas = numImagen + 1;
+                
+                datos[0] = imagenesAgregadas;
                 datos[1] = cantidadImagenes;
                 
-                setChanged();
-                notifyObservers(datos);
+                
+                if(cancelar){
+                    datos[2] = 1;
+                    setChanged();
+                    notifyObservers(datos);
+                    break;
+                }else{
+                    datos[2] = 0;
+                    setChanged();
+                    notifyObservers(datos);
+                }
                 
             }catch(Exception e){
                 erroresImagenes++;
@@ -160,7 +170,8 @@ public class GenerarPDF extends Observable implements Runnable{
             JOptionPane.showMessageDialog(null, erroresImagenes + " imagenes no han podido ser agregadas.", "Error al cargar imagenes", JOptionPane.WARNING_MESSAGE);
         }
         
-        return cantidadImagenes -= erroresImagenes;
+        cancelar=false;
+        return imagenesAgregadas -= erroresImagenes;
     }
 
     private static class OrientacionPaginaEvento implements IEventHandler {
@@ -175,6 +186,14 @@ public class GenerarPDF extends Observable implements Runnable{
             PdfDocumentEvent docEvent = (PdfDocumentEvent) eventoActual;
             docEvent.getPage().put(PdfName.Rotate, orientacion);
         }
+    }
+    
+    public void setDireccionesImagenes(Queue <String> direccionesImagenes){
+        this.direccionesImagenes = direccionesImagenes;
+    }
+    
+    public void cancelarEjecucion(){
+        this.cancelar = true;
     }
     
 }

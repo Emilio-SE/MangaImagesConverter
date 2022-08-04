@@ -54,6 +54,7 @@ public class ConfirmarOrden extends JFrame{
     private AccionesExploradorArchivos explorador;
     private AccionesGenerales accionesGenerales;
     private AccionesJList accionesJList;
+    GenerarPDF generarPDF;
     //Declaración Hilos
     private Thread hiloGenerarPDF;
     //Variables Globales.
@@ -86,8 +87,8 @@ public class ConfirmarOrden extends JFrame{
         lstImagenes = new JList(modelo);
         lblImagen = new JLabel();
         //Instancias clases
-        //accionesTxtFields = new AccionesTextFields( informacion.getRutaAbrirCarpetaEn(), informacion.getRutaAbrirArchivoEn() );
         accionesJList = new AccionesJList( informacion.getRutaAbrirCarpetaEn(), informacion.getRutaAbrirArchivoEn() );
+        generarPDF = new GenerarPDF(informacion);
         explorador = new AccionesExploradorArchivos();
         disenio = new DisenioComponentes();
         accionesGenerales = new AccionesGenerales();
@@ -107,6 +108,7 @@ public class ConfirmarOrden extends JFrame{
         //Otros
         panelCentral = new JScrollPane(lstImagenes);
         accionesJList.colocarImagenes(modelo, direccionesCarpetas);
+        btnCancelar.setEnabled(false);
         //Valores contenedores
         getContentPane().add(panelBotones, BorderLayout.NORTH);
         getContentPane().add(panelCentral, BorderLayout.CENTER);
@@ -306,17 +308,12 @@ public class ConfirmarOrden extends JFrame{
             }
             
             if(e.getSource() == btnLimpiar){
-                //modelo.clear();
                 accionesJList.limpiarJList(modelo, lstImagenes);
             }
             
             //BOTÓN CANCELAR
             if(e.getSource() == btnCancelar){
-                int respuesta = JOptionPane.showConfirmDialog(null, "<html>Al salir perderá todo cambio realizado en esta ventana. <br><br>¿Desea continuar?</html>", "¿Desea salir?", JOptionPane.YES_NO_OPTION);
-                
-                if(respuesta == 0){
-                    dispose();
-                }
+                generarPDF.cancelarEjecucion();
             }
             
             //BOTÓN GENERAR
@@ -325,8 +322,8 @@ public class ConfirmarOrden extends JFrame{
                 actualizarBufferImagenes();
                 accionesGenerales.copiarColas(direccionesImagenes, informacion.getDireccionesImagenes());
                 
-                GenerarPDF generarPDF = new GenerarPDF(informacion, direccionesImagenes);
-                ObservadorEstadoGenerarPDF observadorGenerarPDF = new ObservadorEstadoGenerarPDF(btnGenerarPDF);
+                generarPDF.setDireccionesImagenes(direccionesImagenes);
+                ObservadorEstadoGenerarPDF observadorGenerarPDF = new ObservadorEstadoGenerarPDF(btnGenerarPDF, btnCancelar);
                 generarPDF.addObserver(observadorGenerarPDF);
                 
                 hiloGenerarPDF = new Thread(generarPDF);
@@ -336,7 +333,6 @@ public class ConfirmarOrden extends JFrame{
                         int respuesta = JOptionPane.showConfirmDialog(null, "El archivo \"" + informacion.getTituloPDF() + "\" Ya existe en la ruta especificada\n" + "¿Desea sobreescribirlo?", "Archivo Existente", JOptionPane.YES_NO_OPTION);
                         
                         if(respuesta == 0){
-                            
                             hiloGenerarPDF.start();
                         }                        
                     }else{
@@ -360,6 +356,7 @@ public class ConfirmarOrden extends JFrame{
             int respuesta = JOptionPane.showConfirmDialog(null, "Al salir perderá todo cambio realizado en esta ventana. \n\n¿Desea salir? ", "Salir", JOptionPane.YES_NO_OPTION);
                 
             if(respuesta == JOptionPane.YES_OPTION){
+                generarPDF.cancelarEjecucion();
                 dispose();
             }
             
