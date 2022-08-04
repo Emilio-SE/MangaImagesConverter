@@ -700,7 +700,7 @@ public class FormPrincipal extends JFrame{
                     direccionesCarpetas = accionesJList.obtenerDireccionesJLista(modelo);
                     
                     if(!direccionesCarpetas.isEmpty()){
-                        ConfirmarOrden confirmarOrden = new ConfirmarOrden(informacion, direccionesCarpetas);
+                        ConfirmarOrden confirmarOrden = new ConfirmarOrden(informacion, direccionesCarpetas, btnCargarCarpetas, btnCargarImagenes);
                     }else{
                         JOptionPane.showMessageDialog(null, "La o las carpetas no se han podido cargar, asegurese que todos los directorios sean existentes.", "Error al cargar carpetas", JOptionPane.ERROR_MESSAGE);
                     }
@@ -715,7 +715,7 @@ public class FormPrincipal extends JFrame{
             if(e.getSource() == btnCargarImagenes){                
                 actualizarMetadatos();
                 direccionesCarpetas = new LinkedList<String>();
-                ConfirmarOrden confirmarOrden = new ConfirmarOrden(informacion, direccionesCarpetas);
+                ConfirmarOrden confirmarOrden = new ConfirmarOrden(informacion, direccionesCarpetas, btnCargarCarpetas, btnCargarImagenes);
 
             }
 

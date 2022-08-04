@@ -47,6 +47,8 @@ public class ConfirmarOrden extends JFrame{
     private JButton btnLimpiar;
     private JButton btnGenerarPDF;
     private JButton btnCancelar;
+    private JButton btnCargarCarpetas;
+    private JButton btnCargarImagenes;
     private JList lstImagenes;
     //Declaración clases.
     private InformacionGenerales informacion;
@@ -62,8 +64,10 @@ public class ConfirmarOrden extends JFrame{
     private Queue<String> direccionesCarpetas;
     private int actualizarForm = 0;
     
-    public ConfirmarOrden(InformacionGenerales informarcion, Queue<String>direccionesCarpetas){
+    public ConfirmarOrden(InformacionGenerales informarcion, Queue<String>direccionesCarpetas, JButton btnCargarCarpetas, JButton btnCargarImagenes){
         this.informacion = informarcion;
+        this.btnCargarCarpetas = btnCargarCarpetas;
+        this.btnCargarImagenes = btnCargarImagenes;
         instancias();
         accionesGenerales.copiarColas(this.direccionesCarpetas, direccionesCarpetas);
         valoresPredeterminados();
@@ -109,6 +113,8 @@ public class ConfirmarOrden extends JFrame{
         panelCentral = new JScrollPane(lstImagenes);
         accionesJList.colocarImagenes(modelo, direccionesCarpetas);
         btnCancelar.setEnabled(false);
+        btnCargarCarpetas.setEnabled(false);
+        btnCargarImagenes.setEnabled(false);
         //Valores contenedores
         getContentPane().add(panelBotones, BorderLayout.NORTH);
         getContentPane().add(panelCentral, BorderLayout.CENTER);
@@ -357,6 +363,8 @@ public class ConfirmarOrden extends JFrame{
                 
             if(respuesta == JOptionPane.YES_OPTION){
                 generarPDF.cancelarEjecucion();
+                btnCargarCarpetas.setEnabled(true);
+                btnCargarImagenes.setEnabled(true);
                 dispose();
             }
             
