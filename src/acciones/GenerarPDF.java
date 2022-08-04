@@ -19,10 +19,13 @@ import propiedades.InformacionGenerales;
 import propiedades.Constantes;
 //Otras Importaciones
 import java.io.IOException;
+import java.util.Observable;
 import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
-public class GenerarPDF{
+public class GenerarPDF extends Observable implements Runnable{
     //Declaración de Clases
     InformacionGenerales informacion;
     Constantes constantes;
@@ -31,13 +34,22 @@ public class GenerarPDF{
     //Variables Globales
     public static final PdfNumber VERTICAL = new PdfNumber(0);
     public static final PdfNumber HORIZONTAL = new PdfNumber(90);
-    
+   
     public GenerarPDF(InformacionGenerales informacionGeneral, Queue <String> direccionesImagenes){
         this.informacion = informacionGeneral;
         this.constantes = new Constantes();
         this.direccionesImagenes = direccionesImagenes;
     }
     
+    @Override
+    public void run() {
+        try {
+            crearPDF();
+        } catch (IOException ex) {
+            Logger.getLogger(GenerarPDF.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     public int crearPDF() throws IOException {
         
         OrientacionPaginaEvento orientacion = new OrientacionPaginaEvento();
@@ -52,7 +64,7 @@ public class GenerarPDF{
         cantidadImagenes = colocarImagenesEnPDF(documento, cantidadImagenes, orientacion);
 
         documento.close();
-        
+        JOptionPane.showMessageDialog(null, cantidadImagenes + " imagenes se han convertido al archivo PDF :D" + "\nEl documento ha sido generado en: " + informacion.getRutaGuardarDocumento());
         return cantidadImagenes;
     }
     
@@ -101,6 +113,7 @@ public class GenerarPDF{
         float largoHoja = 0;
         float altoHoja = 0;
         int erroresImagenes = 0;
+        int[] datos = new int[2];
         
         for (int i = 0; i < cantidadImagenes; i++) {
             //El catch espera por si se ha pasado algún archivo que no sea imagen y ocasiona un error.
@@ -129,6 +142,13 @@ public class GenerarPDF{
                     imagen.setWidth(altoHoja);
                     documento.add(imagen);
                 }
+                
+                datos[0] = (i + 1);
+                datos[1] = cantidadImagenes;
+                
+                setChanged();
+                notifyObservers(datos);
+                
             }catch(Exception e){
                 erroresImagenes++;
                 System.out.println(e);
@@ -142,7 +162,7 @@ public class GenerarPDF{
         
         return cantidadImagenes -= erroresImagenes;
     }
-    
+
     private static class OrientacionPaginaEvento implements IEventHandler {
         private PdfNumber orientacion = VERTICAL;
 

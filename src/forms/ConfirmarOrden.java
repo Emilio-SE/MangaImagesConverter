@@ -1,6 +1,5 @@
 package forms;
 
-import propiedades.InformacionGenerales;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Color;
@@ -20,15 +19,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-//Importación de Clases
-import diseno.DisenioComponentes;
-import acciones.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+//Importación de Clases
+import propiedades.InformacionGenerales;
+import diseno.DisenioComponentes;
+import acciones.*;
+import observadores.ObservadorEstadoGenerarPDF;
 //Otras Importaciones
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 import javax.swing.SwingUtilities;
@@ -49,12 +49,13 @@ public class ConfirmarOrden extends JFrame{
     private JButton btnCancelar;
     private JList lstImagenes;
     //Declaración clases.
-    InformacionGenerales informacion;
+    private InformacionGenerales informacion;
     private DisenioComponentes disenio;
-    //private AccionesTextFields accionesTxtFields;
     private AccionesExploradorArchivos explorador;
     private AccionesGenerales accionesGenerales;
     private AccionesJList accionesJList;
+    //Declaración Hilos
+    private Thread hiloGenerarPDF;
     //Variables Globales.
     private DefaultListModel modelo;
     private Queue<String> direccionesCarpetas;
@@ -64,8 +65,6 @@ public class ConfirmarOrden extends JFrame{
         this.informacion = informarcion;
         instancias();
         accionesGenerales.copiarColas(this.direccionesCarpetas, direccionesCarpetas);
-        
-        //colocarImagen("");
         valoresPredeterminados();
         disenioForm();
         eventos();
@@ -324,21 +323,24 @@ public class ConfirmarOrden extends JFrame{
             if(e.getSource() == btnGenerarPDF){
                 Queue <String> direccionesImagenes = new LinkedList<String>();
                 actualizarBufferImagenes();
-                
                 accionesGenerales.copiarColas(direccionesImagenes, informacion.getDireccionesImagenes());
-                GenerarPDF pdf = new GenerarPDF(informacion, direccionesImagenes);
-
+                
+                GenerarPDF generarPDF = new GenerarPDF(informacion, direccionesImagenes);
+                ObservadorEstadoGenerarPDF observadorGenerarPDF = new ObservadorEstadoGenerarPDF(btnGenerarPDF);
+                generarPDF.addObserver(observadorGenerarPDF);
+                
+                hiloGenerarPDF = new Thread(generarPDF);
+                
                 try {                    
                     if(explorador.existeArchivo(informacion.getRutaGuardarDocumento() + informacion.getTituloPDF() + ".pdf")){
                         int respuesta = JOptionPane.showConfirmDialog(null, "El archivo \"" + informacion.getTituloPDF() + "\" Ya existe en la ruta especificada\n" + "¿Desea sobreescribirlo?", "Archivo Existente", JOptionPane.YES_NO_OPTION);
                         
                         if(respuesta == 0){
-                            int cantidadConvertida = pdf.crearPDF();
-                            JOptionPane.showMessageDialog(null, cantidadConvertida + " imagenes se han convertido al archivo PDF :D" + "\nEl documento ha sido generado en: " + informacion.getRutaGuardarDocumento());
+                            
+                            hiloGenerarPDF.start();
                         }                        
                     }else{
-                        int cantidadConvertida = pdf.crearPDF();
-                        JOptionPane.showMessageDialog(null, cantidadConvertida + " imagenes se han convertido al archivo PDF :D" + "\nEl documento ha sido generado en: " + informacion.getRutaGuardarDocumento());
+                        hiloGenerarPDF.start(); 
                     }
                     
                 } catch (Exception ex) {
@@ -377,5 +379,6 @@ public class ConfirmarOrden extends JFrame{
         public void windowDeactivated(WindowEvent e) {}
         
     }
+    
     
 }
