@@ -31,6 +31,7 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.util.Arrays;
 import propiedades.Constantes;
@@ -157,7 +158,7 @@ public class FormPrincipal extends JFrame{
 
     private void valoresPredeterminados(){
         //Valores de Ventana.
-        this.setTitle("MANGA IMAGES CONVERTER (Ver. 2.2.1)");
+        this.setTitle("MANGA IMAGES CONVERTER (Ver. 2.2.2)");
         this.setResizable(false);
         this.setSize(600, 750);
         getContentPane().setBackground(new Color(236, 246, 247));
@@ -570,7 +571,19 @@ public class FormPrincipal extends JFrame{
         
     }
    
-    public class EventosMouse implements MouseListener{  
+    public class EventosMouse implements MouseListener, MouseMotionListener{  
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            if(e.getSource() == lstCarpetas){
+                System.out.println("Mouse Dragged");
+            }
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            System.out.println("Mouse Moved");
+        }
+        
         @Override
         public void mousePressed(MouseEvent e) {
             if(e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)){
@@ -754,20 +767,4 @@ public class FormPrincipal extends JFrame{
 
     }
 
-    /*public class efectoMouse implements MouseMotionListener{
-
-        @Override
-        public void mouseDragged(MouseEvent e) {
-            if(e.){
-                
-            }
-        }
-
-        @Override
-        public void mouseMoved(MouseEvent e) {
-            
-        }
-        
-    }*/
-    
 }

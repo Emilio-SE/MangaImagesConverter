@@ -3,7 +3,6 @@ package forms;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Color;
-import java.awt.Image;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -12,7 +11,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 //Importación Eventos
 import java.awt.event.ActionEvent;
@@ -62,13 +60,13 @@ public class ConfirmarOrden extends JFrame{
     private AccionesExploradorArchivos explorador;
     private AccionesGenerales accionesGenerales;
     private AccionesJList accionesJList;
-    GenerarPDF generarPDF;
+    private AccionesImagenes accionesImagenes;
+    private GenerarPDF generarPDF;
     //Declaración Hilos
     private Thread hiloGenerarPDF;
     //Variables Globales.
     private DefaultListModel modelo;
     private Queue<String> direccionesCarpetas;
-    private int actualizarForm = 0;
     
     public ConfirmarOrden(InformacionGenerales informarcion, Queue<String>direccionesCarpetas, JButton btnCargarCarpetas, JButton btnCargarImagenes){
         this.informacion = informarcion;
@@ -102,6 +100,7 @@ public class ConfirmarOrden extends JFrame{
         explorador = new AccionesExploradorArchivos();
         disenio = new DisenioComponentes();
         accionesGenerales = new AccionesGenerales();
+        accionesImagenes = new AccionesImagenes();
         //Instancias variables globales
         direccionesCarpetas = new LinkedList<String>();
     }
@@ -131,17 +130,7 @@ public class ConfirmarOrden extends JFrame{
         panelCentral.setLayout(new ScrollPaneLayout());
         panelPiePagina.setLayout(new FlowLayout());
         panelImagen.setLayout(new FlowLayout());
-        //¡NO QUITAR EL SIGUIENTE AGREGADO DE LABEL!
         panelImagen.add(lblImagen);
-        /*
-            Se agrega primero el label "lblImagen" al panel que se encuentra en el lateral
-            derecho, esto permite que posteriormente se agregue la imagen a dicho label y
-            posteriormente se actualice el form, de tal manera que permita visualizar
-            correctamente la imagen en el form, de otra manera, si se quita este agregado
-            no será posible visualizar la imagen hasta el segundo clic, y si se quita el 
-            actualizado del form <<vea línea 177 a fecha de este escrito>> directamente no
-            será pósible visualizar la imagen.        
-        */
     }
     
     private void disenioForm(){
@@ -204,58 +193,12 @@ public class ConfirmarOrden extends JFrame{
         
     }
     
-    private void colocarImagen(String rutaImagen){            
-        try {
-            ImageIcon icon = new ImageIcon(rutaImagen);
-            Image img = icon.getImage();
-            Image newImg = img.getScaledInstance(290, 310, Image.SCALE_SMOOTH);
-            icon = new ImageIcon(newImg);
-            lblImagen.setIcon(icon);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Ha ocurrido un error inesperado " + e.getMessage(), "ERROR", JOptionPane.ERROR);
-        }
-        
-        if(actualizarForm < 1){
-            this.invalidate();
-            this.validate();
-            actualizarForm++;
-        }
-    }
-    
-    private void mostrarImagenEnCambioDeFoco(){
-        int indice = lstImagenes.getSelectedIndex();
-
-        if (indice != -1) {
-            Object rutaImagen = modelo.getElementAt(indice);
-            colocarImagen(rutaImagen.toString());
-            panelImagen.add(lblImagen);
-        }
-    }
-    
-    private void actualizarBufferImagenes(){
-        int cantDireccionesTemporales = informacion.getDireccionesImagenes().size();
-        
-        if(cantDireccionesTemporales > 0){
-            for (int i = 0; i < cantDireccionesTemporales; i++) {
-                informacion.getDireccionesImagenes().remove();
-            }
-        }
-        
-        if(!informacion.getRutaPortada().equals("")){
-            informacion.setDireccionesImagenes(informacion.getRutaPortada());
-        }
-
-        for (int i = 0; i < modelo.getSize(); i++) {    
-            informacion.setDireccionesImagenes( modelo.getElementAt(i).toString() );
-        }
-    }
-    
     public class EventosMouse implements MouseListener{  
         @Override
         public void mousePressed(MouseEvent e) {
             
             if (e.getClickCount() == 1) {
-                mostrarImagenEnCambioDeFoco();
+                accionesImagenes.mostrarImagenEnCambioDeFoco(lstImagenes, modelo, panelImagen, lblImagen);
             }
             
             if(e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)){
@@ -282,7 +225,7 @@ public class ConfirmarOrden extends JFrame{
         public void keyPressed(KeyEvent e) {
             if (e.getKeyCode()==KeyEvent.VK_DELETE){
                 accionesJList.eliminarElementoJList(modelo, lstImagenes);
-                mostrarImagenEnCambioDeFoco();
+                accionesImagenes.mostrarImagenEnCambioDeFoco(lstImagenes, modelo, panelImagen, lblImagen);
             }
             
             if(e.getKeyCode()==KeyEvent.VK_ENTER){
@@ -302,7 +245,7 @@ public class ConfirmarOrden extends JFrame{
         @Override
         public void keyReleased(KeyEvent e) {
             if(e.getKeyCode()==KeyEvent.VK_DOWN || e.getKeyCode()==KeyEvent.VK_UP){
-                mostrarImagenEnCambioDeFoco(); 
+                accionesImagenes.mostrarImagenEnCambioDeFoco(lstImagenes, modelo, panelImagen, lblImagen);; 
             }
         }
 
@@ -330,7 +273,7 @@ public class ConfirmarOrden extends JFrame{
             //BOTÓN ELIMINAR
             if(e.getSource() == btnEliminar){
                 accionesJList.eliminarElementoJList(modelo, lstImagenes);
-                mostrarImagenEnCambioDeFoco();
+                accionesImagenes.mostrarImagenEnCambioDeFoco(lstImagenes, modelo, panelImagen, lblImagen);
             }
             
             if(e.getSource() == btnLimpiar){
@@ -345,7 +288,7 @@ public class ConfirmarOrden extends JFrame{
             //BOTÓN GENERAR
             if(e.getSource() == btnGenerarPDF){
                 Queue <String> direccionesImagenes = new LinkedList<String>();
-                actualizarBufferImagenes();
+                accionesImagenes.actualizarBufferImagenes(modelo, informacion);
                 accionesGenerales.copiarColas(direccionesImagenes, informacion.getDireccionesImagenes());
                 
                 generarPDF.setDireccionesImagenes(direccionesImagenes);
