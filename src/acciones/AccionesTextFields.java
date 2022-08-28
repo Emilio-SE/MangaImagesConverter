@@ -5,22 +5,22 @@ import java.awt.Toolkit;
 import javax.swing.JTextField;
 //Importación de eventos
 import java.awt.event.KeyEvent;
+import propiedades.Metadatos;
 
 public class AccionesTextFields{
     
-    private String abrirCarpetasEn;
-    private String abrirArchivosEn;
     private AccionesExploradorArchivos explorador;
+    private Metadatos informacion;
    
-    public AccionesTextFields(String abrirCarpetasEn, String abrirArchivosEn){
+    public AccionesTextFields(){
         explorador = new AccionesExploradorArchivos();
-        this.abrirCarpetasEn = abrirCarpetasEn;
-        this.abrirArchivosEn = abrirArchivosEn;
+        informacion = Metadatos.getInstancia();
+
         
     }
     
     public void colocarRutaCarpeta(JTextField campo){
-        String[] rutas = explorador.abrirExploradorCarpetas(abrirCarpetasEn);
+        String[] rutas = explorador.abrirExploradorCarpetas(informacion.getRutaAbrirCarpetaEn());
         
         if(!rutas[0].equals("")){
             campo.setText(rutas[0]);
@@ -28,7 +28,7 @@ public class AccionesTextFields{
     }
     
     public void colocarRutaArchivo(JTextField campo){
-        String ruta[] = explorador.abrirExploradorArchivos(abrirArchivosEn);
+        String ruta[] = explorador.abrirExploradorArchivos(informacion.getRutaAbrirArchivoEn());
         
         if(!ruta[0].equals("")){
             campo.setText(ruta[0]);

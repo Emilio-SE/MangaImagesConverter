@@ -10,60 +10,57 @@ import javax.swing.JTextField;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 //Importacion de Eventos
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 //Importación clases
 import diseno.DisenioComponentes;
-import propiedades.Propiedades;
+import propiedades.ConsultarMetadatos;
 import propiedades.Constantes;
 import acciones.AccionesTextFields;
+import diseno.DisposicionComponentesAjustes;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.JOptionPane;
-import propiedades.InformacionGenerales;
 
 public class Ajustes extends JFrame {
-    JLabel lblApartadoAjustesDocumento;
-    JLabel lblFormatoHoja;
-    JLabel lblMargenes;
-    JLabel lblApartadoValores;
-    JLabel lblTitulo;
-    JLabel lblAutor;
-    JLabel lblPortada;
-    JLabel lblGuardar;
-    JLabel lblSeleccionarArchivo;
-    JLabel lblSeleccionarCarpeta;
-    JButton btnBuscaPortada;
-    JButton btnBuscarGuardar;
-    JButton btnSeleccionarArchivo;
-    JButton btnSeleccionarCarpeta;
-    JButton btnGuardar;
-    JButton btnCancelar;
-    JTextField tfMargenes;
-    JTextField tfTitulo;
-    JTextField tfAutor;
-    JTextField tfPortada;
-    JTextField tfGuardar;
-    JTextField tfSeleccionarArchivo;
-    JTextField tfSeleccionarCarpeta;
-    JRadioButton rbtnA4;
-    JRadioButton rbtnCarta;
-    JRadioButton rbtnCm;
-    ButtonGroup tipoHoja;
-    JRadioButton rbtnPulgadas;
-    JRadioButton rbtnPuntos;
-    ButtonGroup tipoMargenes;
-    DisenioComponentes disenio;
-    private Propiedades propiedades;
+    private JLabel lblApartadoAjustesDocumento;
+    private JLabel lblFormatoHoja;
+    private JLabel lblMargenes;
+    private JLabel lblApartadoValores;
+    private JLabel lblTitulo;
+    private JLabel lblAutor;
+    private JLabel lblPortada;
+    private JLabel lblGuardar;
+    private JLabel lblSeleccionarArchivo;
+    private JLabel lblSeleccionarCarpeta;
+    private JButton btnBuscaPortada;
+    private JButton btnBuscarGuardar;
+    private JButton btnSeleccionarArchivo;
+    private JButton btnSeleccionarCarpeta;
+    private JButton btnGuardar;
+    private JButton btnCancelar;
+    private JTextField tfMargenes;
+    private JTextField tfTitulo;
+    private JTextField tfAutor;
+    private JTextField tfPortada;
+    private JTextField tfGuardar;
+    private JTextField tfSeleccionarArchivo;
+    private JTextField tfSeleccionarCarpeta;
+    private JRadioButton rbtnA4;
+    private JRadioButton rbtnCarta;
+    private JRadioButton rbtnCm;
+    private ButtonGroup tipoHoja;
+    private JRadioButton rbtnPulgadas;
+    private JRadioButton rbtnPuntos;
+    private ButtonGroup tipoMargenes;
+    private DisenioComponentes disenio;
+    private ConsultarMetadatos propiedades;
     private Constantes constantes;
     private EventosComponentes eventosComponentes;
     private AccionesTextFields accionesTxtFields;
-    private InformacionGenerales informacion;
     
-    public Ajustes(InformacionGenerales informarcion){
-        this.informacion = informarcion;
+    public Ajustes(){
         instancias();
         valoresPredeterminados();
         disenioForm();
@@ -104,10 +101,10 @@ public class Ajustes extends JFrame {
         tipoMargenes = new ButtonGroup();
         //Instanciación de clases
         disenio = new DisenioComponentes();
-        propiedades = new Propiedades();
+        propiedades = new ConsultarMetadatos();
         constantes = new Constantes();
         eventosComponentes = new EventosComponentes();
-        accionesTxtFields = new AccionesTextFields(informacion.getRutaAbrirCarpetaEn(), informacion.getRutaAbrirArchivoEn());
+        accionesTxtFields = new AccionesTextFields();
     }
     
     private void valoresPredeterminados(){
@@ -123,7 +120,6 @@ public class Ajustes extends JFrame {
         tipoMargenes.add(rbtnCm);
         tipoMargenes.add(rbtnPulgadas);
         tipoMargenes.add(rbtnPuntos);
-        //System.out.println(propiedades.getAutor());
         propiedades.consultarPropiedades();
         tfTitulo.setText(propiedades.getTitulo());
         tfAutor.setText(propiedades.getAutor());
@@ -185,171 +181,19 @@ public class Ajustes extends JFrame {
         // -----------Disposición Componentes-----------
         GridBagConstraints gbc = new GridBagConstraints();
 
-        gbc.weightx = 1;
-        gbc.weighty = 1;
-        gbc.gridheight = 1;
+        DisposicionComponentesAjustes dc = new DisposicionComponentesAjustes(gbc, this);
         
-        //Fila 0
-        gbc.gridy = 0;
-        
-        gbc.insets = new Insets(0, 10, 0, 10);
-        gbc.gridx = 0;
-        gbc.gridwidth = 3;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.fill = GridBagConstraints.NONE;
-        add(lblApartadoValores, gbc);
-        
-        //Fila 1
-        gbc.gridy = 1;
-        
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridwidth = 1;
-        add(lblTitulo, gbc);
-        
-        gbc.insets = new Insets(0, 0, 0, 30);
-        gbc.gridx = 1;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(tfTitulo, gbc);
-        
-        //Fila 2
-        gbc.gridy = 2;
-        
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        add(lblAutor, gbc);
-        
-        gbc.insets = new Insets(0, 0, 0, 30);
-        gbc.gridx = 1;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(tfAutor, gbc);
-        
-        
-        //Fila 3
-        gbc.gridy = 3;
-        
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        add(lblPortada, gbc);
-        
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(tfPortada, gbc);
-        
-        gbc.insets = new Insets(0, 60, 0, 30);
-        gbc.gridx = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(btnBuscaPortada, gbc);
-        
-        //Fila 4
-        gbc.gridy = 4;
-        
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.fill = GridBagConstraints.NONE;
-        add(lblGuardar, gbc);
-        
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(tfGuardar, gbc);
-        
-        gbc.insets = new Insets(0, 60, 0, 30);
-        gbc.gridx = 2;
-        add(btnBuscarGuardar, gbc);
-        
-        //Fila 5
-        gbc.gridy = 5;
-        
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.fill = GridBagConstraints.NONE;
-        add(lblFormatoHoja, gbc);
-        
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        add(rbtnA4, gbc);
-        
-        gbc.anchor = GridBagConstraints.LINE_END;
-        add(rbtnCarta, gbc);
-        
-        //Fila 6
-        gbc.gridy = 6;
-        
-        gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(lblMargenes, gbc);
-        
-        
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(tfMargenes, gbc);
-        
-        gbc.gridx = 2;
-        gbc.insets = new Insets(0, 60, 0, 30);
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        add(rbtnCm, gbc);
-        
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(rbtnPulgadas, gbc);
-        
-        gbc.anchor = GridBagConstraints.LINE_END;
-        add(rbtnPuntos, gbc);
-        
-        //Fila 7
-        gbc.gridy = 7;
-        
-        gbc.gridwidth = 1;
-        
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(lblSeleccionarArchivo, gbc);
-        
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(tfSeleccionarArchivo, gbc);
-        
-        gbc.insets = new Insets(0, 60, 0, 30);
-        gbc.gridx = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(btnSeleccionarArchivo, gbc);
-        
-        //Fila 8
-        gbc.gridy = 8;
-        
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.fill = GridBagConstraints.NONE;
-        add(lblSeleccionarCarpeta, gbc);
-        
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(tfSeleccionarCarpeta, gbc);
-        
-        gbc.insets = new Insets(0, 60, 0, 30);
-        gbc.gridx = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(btnSeleccionarCarpeta, gbc);
-        
-        //Fila 9
-        gbc.gridy = 9;
-
-        gbc.insets = new Insets(15, 0, 15, 0);
-        gbc.gridx = 0;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(btnCancelar, gbc);
-        
-        gbc.gridx = 1;
-        add(btnGuardar, gbc);
+        dc.valoresPredeterminados();
+        dc.disposicionFila1(lblApartadoValores);
+        dc.disposicionFila2(lblTitulo, tfTitulo);
+        dc.disposicionFila3(lblAutor, tfAutor);
+        dc.disposicionFila4(lblPortada, tfPortada, btnBuscaPortada);
+        dc.disposicionFila5(lblGuardar, tfGuardar, btnBuscarGuardar);
+        dc.disposicionFila6(lblFormatoHoja, rbtnA4, rbtnCarta);
+        dc.disposicionFila7(lblMargenes, tfMargenes, rbtnCm, rbtnPulgadas, rbtnPuntos);
+        dc.disposicionFila8(lblSeleccionarArchivo, tfSeleccionarArchivo, btnSeleccionarArchivo);
+        dc.disposicionFila9(lblSeleccionarCarpeta, tfSeleccionarCarpeta, btnSeleccionarCarpeta);
+        dc.disposicionFila10(btnCancelar, btnGuardar);
         
         setVisible(true);
     }
@@ -369,27 +213,22 @@ public class Ajustes extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             
-            //BOTÓN BUSCAR PORTADA
             if(e.getSource() == btnBuscaPortada){
                 accionesTxtFields.colocarRutaArchivo(tfPortada);
             }
             
-            //BOTÓN GUARDAR
             if(e.getSource() == btnBuscarGuardar){
                 accionesTxtFields.colocarRutaCarpeta(tfGuardar);
             }
             
-            //BOTÓN SELECCIONAR ARCHIVO EN
             if(e.getSource() == btnSeleccionarArchivo){
                 accionesTxtFields.colocarRutaCarpeta(tfSeleccionarArchivo);
             }
             
-            //BOTÓN SELECCIONAR CARPETA EN
             if(e.getSource() == btnSeleccionarCarpeta){
                 accionesTxtFields.colocarRutaCarpeta(tfSeleccionarCarpeta);
             }
 
-            //BOTÓN GUARDAR
             if(e.getSource() == btnGuardar){
                 
                 String formatoHoja, unidades;
@@ -424,7 +263,6 @@ public class Ajustes extends JFrame {
                 propiedades.sobreescribirPropiedades(tfTitulo.getText(), tfAutor.getText(), tfPortada.getText(), tfGuardar.getText(), formatoHoja, margenes, unidades, tfSeleccionarArchivo.getText(), tfSeleccionarCarpeta.getText());
             }
             
-            //BOTÓN CANCELAR
             if(e.getSource() == btnCancelar){
                 
                 int respuesta = JOptionPane.showConfirmDialog(null, "Al salir perderá todo cambio realizado en esta ventana. \n\n¿Desea salir? ", "Salir", JOptionPane.YES_NO_OPTION);

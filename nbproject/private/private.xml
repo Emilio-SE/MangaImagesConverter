@@ -3,11 +3,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/emili/OneDrive/Desktop/Codes/Java/MangaImagesConverter/src/forms/ConfirmarOrden.java</file>
-            <file>file:/C:/Users/emili/OneDrive/Desktop/Codes/Java/MangaImagesConverter/src/acciones/AccionesJList.java</file>
-            <file>file:/C:/Users/emili/OneDrive/Desktop/Codes/Java/MangaImagesConverter/src/acciones/AccionesExploradorArchivos.java</file>
-            <file>file:/C:/Users/emili/OneDrive/Desktop/Codes/Java/MangaImagesConverter/src/acciones/AccionesGenerales.java</file>
-            <file>file:/C:/Users/emili/OneDrive/Desktop/Codes/Java/MangaImagesConverter/src/forms/FormPrincipal.java</file>
+            <file>file:/C:/Users/emili/OneDrive/Desktop/Codes/Java/MangaImagesConverter/src/forms/Main.java</file>
+            <file>file:/C:/Users/emili/OneDrive/Desktop/Codes/Java/MangaImagesConverter/src/acciones/GenerarPDF.java</file>
         </group>
     </open-files>
 </project-private>

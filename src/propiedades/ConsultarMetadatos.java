@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
-public class Propiedades {
+public class ConsultarMetadatos {
     
     private final String PROPIEDADES;
     private String  Titulo;
@@ -23,7 +23,7 @@ public class Propiedades {
     private String  Seleccionar_Carpeta_En;
     private Constantes constantes;
     
-    public Propiedades() {
+    public ConsultarMetadatos() {
         this.PROPIEDADES = System.getProperty("user.dir") + "\\src\\config\\Configuracion.properties";
         constantes = new Constantes();
     }

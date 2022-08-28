@@ -1,13 +1,13 @@
-package acciones;
+package sistemaUndoRedo;
 
-public class instanciasJList {
+public class InstanciasJList {
     
     private String accion;
     private String direccion;
     private int indice;
     private int elementosAfectados;
     
-    public instanciasJList(String accion, String direccion, int indice, int elementosAfectados){
+    public InstanciasJList(String accion, String direccion, int indice, int elementosAfectados){
         this.accion = accion;
         this.direccion = direccion;
         this.indice = indice;

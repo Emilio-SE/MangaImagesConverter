@@ -1,15 +1,29 @@
 package acciones;
 
 import java.awt.Image;
+import java.util.LinkedList;
+import java.util.Queue;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import propiedades.InformacionGenerales;
+import propiedades.Constantes;
+import propiedades.Metadatos;
 
 public class AccionesImagenes {
+    
+    private Metadatos informacion;
+    private Constantes constantes;
+    private static Queue <String> direccionesImagenes;
+    
+    public AccionesImagenes(){
+        this.informacion = Metadatos.getInstancia();
+        constantes = new Constantes();
+        direccionesImagenes = new LinkedList<String>();
+    }
+    
     public void colocarImagen(JLabel lblImagen, String rutaImagen){            
         try {
             ImageIcon icon = new ImageIcon(rutaImagen);
@@ -32,21 +46,45 @@ public class AccionesImagenes {
         }
     }
     
-    public void actualizarBufferImagenes(DefaultListModel modelo, InformacionGenerales informacion){
-        int cantDireccionesTemporales = informacion.getDireccionesImagenes().size();
+    public void actualizarBufferImagenes(DefaultListModel modelo){
+        int cantDireccionesTemporales = getDireccionesImagenes().size();
         
         if(cantDireccionesTemporales > 0){
             for (int i = 0; i < cantDireccionesTemporales; i++) {
-                informacion.getDireccionesImagenes().remove();
+                getDireccionesImagenes().remove();
             }
         }
         
         if(!informacion.getRutaPortada().equals("")){
-            informacion.setDireccionesImagenes(informacion.getRutaPortada());
+            setDireccionesImagenes(informacion.getRutaPortada());
         }
 
         for (int i = 0; i < modelo.getSize(); i++) {    
-            informacion.setDireccionesImagenes( modelo.getElementAt(i).toString() );
+            setDireccionesImagenes( modelo.getElementAt(i).toString() );
         }
+    }
+    
+    public boolean esImagen(String nombreImagen){
+        String[] extensionesPermitidas = constantes.EXTENSIONES_PERMITIDAS;
+        int i = 0;
+        boolean confirmacion = false;
+        
+        while(i < extensionesPermitidas.length){
+            if(nombreImagen.toLowerCase().endsWith( "." + extensionesPermitidas[i] )){
+                confirmacion = true;
+                break;
+            }
+            i++;
+        }
+        
+        return confirmacion;
+    }
+    
+    public Queue<String> getDireccionesImagenes() {
+        return direccionesImagenes;
+    }
+    
+    public void setDireccionesImagenes(String direccionImagen) {
+        direccionesImagenes.add(direccionImagen);
     }
 }

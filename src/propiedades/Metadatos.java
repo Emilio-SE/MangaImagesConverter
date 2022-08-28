@@ -2,21 +2,19 @@ package propiedades;
 
 //Importación clases
 import acciones.AccionesExploradorArchivos;
+import acciones.AccionesConversiones;
 import acciones.AccionesGenerales;
 import java.util.Arrays;
-//Otras importaciones
-import java.util.Queue;
-import java.util.LinkedList;
 
-public class InformacionGenerales {
+public class Metadatos {
     
     //Declaración de Clases
     private AccionesGenerales accionesGenerales;
-    private Propiedades propiedades;
+    private ConsultarMetadatos propiedades;
     private AccionesExploradorArchivos procesos;
-    //Otras Declaraciones
-    private Queue <String> direccionesImagenes;
+    private AccionesConversiones conversiones;
     //Variables Globales
+    private static Metadatos informacionGeneral;
     private String tituloPDF;
     private String autorPDF;
     private String rutaPortada;
@@ -29,19 +27,28 @@ public class InformacionGenerales {
     private int tipoHoja;
     private int unidadMedida;
     
-    public InformacionGenerales(){
+    private Metadatos(){
+
         instancias();
         propiedades.consultarPropiedades();
         valoresPredeterminados();
+    }
+    
+    public static Metadatos getInstancia(){
+        
+        if(informacionGeneral == null){
+            informacionGeneral = new Metadatos();
+        }
+        
+        return informacionGeneral;
     }
 
     private void instancias(){
         //Instancias de Clases
         procesos = new AccionesExploradorArchivos();
-        propiedades = new Propiedades();
+        propiedades = new ConsultarMetadatos();
         accionesGenerales = new AccionesGenerales();
-        //Otras Instancias
-        direccionesImagenes = new LinkedList<String>();
+        conversiones = new AccionesConversiones();
     }
     
     private void valoresPredeterminados(){
@@ -52,7 +59,7 @@ public class InformacionGenerales {
         if(!auxString.equals("")){
             this.tituloPDF = auxString;
         }else{
-            this.tituloPDF = procesos.nombreAleatorio();
+            this.tituloPDF = accionesGenerales.nombreAleatorio();
         }
         
         auxString = propiedades.getAutor();
@@ -80,7 +87,7 @@ public class InformacionGenerales {
         
         this.unidadMedida = propiedades.getUnidades();
         
-        this.margenesFloat = accionesGenerales.margenesTxtAFloat( propiedades.getMargenes() );
+        this.margenesFloat = conversiones.margenesTxtAFloat( propiedades.getMargenes() );
         
         this.margenesString = Arrays.toString( this.margenesFloat ).replace("[", "").replace("]","").replace("0.0", "0");
         
@@ -136,10 +143,6 @@ public class InformacionGenerales {
         return unidadMedida;
     }
 
-    public Queue<String> getDireccionesImagenes() {
-        return direccionesImagenes;
-    }
-
     public String getRutaAbrirCarpetaEn() {
         return rutaAbrirCarpetaEn;
     }
@@ -172,20 +175,12 @@ public class InformacionGenerales {
         this.margenesFloat = margenesFloat;
     }
 
-    /*public void setMargenesString(String margenesString) {
-        this.margenesString = margenesString;
-    }*/
-    
     public void setTipoHoja(int tipoHoja) {
         this.tipoHoja = tipoHoja;
     }
 
     public void setUnidadMedida(int unidadMedida) {
         this.unidadMedida = unidadMedida;
-    }
-    
-    public void setDireccionesImagenes(String direccionImagen) {
-        this.direccionesImagenes.add(direccionImagen);
     }
     
 }

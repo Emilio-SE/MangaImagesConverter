@@ -1,83 +1,26 @@
 package acciones;
 
-import java.io.File;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Queue;
 
+/**
+ *
+ * @author emili
+ */
 public class AccionesGenerales {
-    
-    public float[] cmApts(String margenesTexto){
+    public String nombreAleatorio(){
+        String nombreDocumento = "MIC ";
+        int numeroAleatorioDistintivo1 = (int)( Math.random() * 100000000 + 1 );
         
-        float[] margenesPts = new float[4];
-        float[] margenesCm = margenesTxtAFloat(margenesTexto);
+        DateTimeFormatter fechaActual = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         
-        for (int i = 0; i < 4; i++) {
-            margenesPts[i] = margenesCm[i] * 28.346f;
-        }
+        nombreDocumento += fechaActual.format(LocalDateTime.now()) + " " + numeroAleatorioDistintivo1;
+        nombreDocumento = nombreDocumento.replace("/", "-").replace(":", "-").replace(" ", "_");
         
-        return margenesPts;
-    }
-    
-    public float[] pulApts(String margenesTexto){
-        
-        float[] margenesPts = new float[4];
-        float[] margenesPul = margenesTxtAFloat(margenesTexto);
-        
-        for (int i = 0; i < 4; i++) {
-            margenesPts[i] = margenesPul[i] * 72f;
-        }
-        
-        return margenesPts;
-    }
-    
-    public float[] margenesTxtAFloat(String margenesTexto){
-
-        String margenesSeparados[] = margenesTexto.split(",");
-        
-        float[] margenes = new float[4];
-        
-        for (int i = 0; i < 4; i++) {
-            
-            try{
-                margenes[i] = Float.parseFloat(margenesSeparados[i]) ;
-            }catch(ArrayIndexOutOfBoundsException e){
-                margenes[i] = 0;
-            }catch(NumberFormatException e){
-                margenes[i] = 0;
-            }
-
-        }        
-        
-        return margenes;
-    }
-    
-    public void copiarColas(Queue<String> colaDestino, Queue<String> colaOrigen){
-        Iterator<String> auxColaOrigen = colaOrigen.iterator();
-        
-        if(!colaDestino.isEmpty()){
-            colaDestino.remove();
-        }
-        
-        while(auxColaOrigen.hasNext()){
-            colaDestino.add(auxColaOrigen.next());
-        }
-        
-    }
-    
-    public static List<String> FileAListString(File[] listadoArchivos){
-        
-        List<String> rutas = new ArrayList<>();
-        
-        for (File ruta : listadoArchivos) {
-            rutas.add(ruta.getAbsolutePath());
-        }
-        
-        return rutas;
-        
+        return nombreDocumento;
     }
     
     public static String[] ordenarListado( List<String> rutas ){
@@ -107,5 +50,5 @@ public class AccionesGenerales {
          
         return rutas.toArray(new String[0]);
           
-     }
+    }
 }

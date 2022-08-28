@@ -13,29 +13,25 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneLayout;
 import javax.swing.JOptionPane;
 //Importación Eventos
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 //Importación de Clases
-import propiedades.InformacionGenerales;
+import propiedades.Metadatos;
 import diseno.DisenioComponentes;
 import acciones.*;
+import eventos.ComponentesConfirmarOrden;
+import eventos.Mouse;
+import eventos.Teclado;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.io.File;
-import observadores.ObservadorEstadoGenerarPDF;
+import sistemaUndoRedo.*;
 //Otras Importaciones
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import javax.swing.SwingUtilities;
 
 public class ConfirmarOrden extends JFrame{
     //Declaración Componentes.
@@ -55,21 +51,20 @@ public class ConfirmarOrden extends JFrame{
     private JButton btnCargarImagenes;
     private JList lstImagenes;
     //Declaración clases.
-    private InformacionGenerales informacion;
+    private Metadatos informacion;
     private DisenioComponentes disenio;
     private AccionesExploradorArchivos explorador;
-    private AccionesGenerales accionesGenerales;
+    private AccionesConversiones accionesGenerales;
     private AccionesJList accionesJList;
     private AccionesImagenes accionesImagenes;
     private GenerarPDF generarPDF;
-    //Declaración Hilos
-    private Thread hiloGenerarPDF;
+    
     //Variables Globales.
     private DefaultListModel modelo;
     private Queue<String> direccionesCarpetas;
     
-    public ConfirmarOrden(InformacionGenerales informarcion, Queue<String>direccionesCarpetas, JButton btnCargarCarpetas, JButton btnCargarImagenes){
-        this.informacion = informarcion;
+    public ConfirmarOrden(Queue<String>direccionesCarpetas, JButton btnCargarCarpetas, JButton btnCargarImagenes){
+        this.informacion = Metadatos.getInstancia();
         this.btnCargarCarpetas = btnCargarCarpetas;
         this.btnCargarImagenes = btnCargarImagenes;
         instancias();
@@ -84,7 +79,7 @@ public class ConfirmarOrden extends JFrame{
         panelBotones = new JPanel();
         panelPiePagina = new JPanel();
         panelImagen = new JPanel();
-        btnSubirPosicionImagen = new JButton("Subir ");
+        btnSubirPosicionImagen = new JButton("Subir");
         btnBajarPosicionImagen = new JButton("Bajar");
         btnAgregar = new JButton("Agregar");
         btnEliminar = new JButton("Eliminar");
@@ -96,10 +91,10 @@ public class ConfirmarOrden extends JFrame{
         lblImagen = new JLabel();
         //Instancias clases
         accionesJList = new AccionesJList( informacion.getRutaAbrirCarpetaEn(), informacion.getRutaAbrirArchivoEn() );
-        generarPDF = new GenerarPDF(informacion);
+        generarPDF = new GenerarPDF();
         explorador = new AccionesExploradorArchivos();
         disenio = new DisenioComponentes();
-        accionesGenerales = new AccionesGenerales();
+        accionesGenerales = new AccionesConversiones();
         accionesImagenes = new AccionesImagenes();
         //Instancias variables globales
         direccionesCarpetas = new LinkedList<String>();
@@ -116,7 +111,7 @@ public class ConfirmarOrden extends JFrame{
         this.setLayout(new BorderLayout());
         //Otros
         panelCentral = new JScrollPane(lstImagenes);
-        accionesJList.colocarImagenes(modelo, direccionesCarpetas);
+        accionesJList.colocarRutasImagenesEnJList(modelo, direccionesCarpetas);
         btnCancelar.setEnabled(false);
         btnCargarCarpetas.setEnabled(false);
         btnCargarImagenes.setEnabled(false);
@@ -162,20 +157,32 @@ public class ConfirmarOrden extends JFrame{
     }
 
     private void eventos(){
-        btnSubirPosicionImagen.addActionListener(new EventosComponentes());
-        btnBajarPosicionImagen.addActionListener(new EventosComponentes());
-        btnAgregar.addActionListener(new EventosComponentes());
-        btnEliminar.addActionListener(new EventosComponentes());
-        btnLimpiar.addActionListener(new EventosComponentes());
-        btnGenerarPDF.addActionListener(new EventosComponentes());
-        btnCancelar.addActionListener(new  EventosComponentes());
-        lstImagenes.addMouseListener(new EventosMouse());
-        lstImagenes.addKeyListener(new EventosTeclado());
-        btnAgregar.addKeyListener(new EventosTeclado());
-        btnSubirPosicionImagen.addKeyListener(new EventosTeclado());
-        btnBajarPosicionImagen.addKeyListener(new EventosTeclado());
-        btnEliminar.addKeyListener(new EventosTeclado());
-        btnLimpiar.addKeyListener(new EventosTeclado());
+        ComponentesConfirmarOrden eventosComponentes = new ComponentesConfirmarOrden(modelo, lstImagenes, accionesJList, generarPDF);
+        Mouse eventosMouse = new Mouse(modelo, lstImagenes, "ConfirmarOrden");
+        Teclado eventosTeclado = new Teclado(modelo, lstImagenes, accionesJList, panelImagen, lblImagen, "ConfirmarOrden");
+        
+        eventosMouse.setLblImagen(lblImagen);
+        eventosMouse.setPanelImagen(panelImagen);
+        
+        eventosComponentes.setBtnCancelar(btnCancelar);
+        eventosComponentes.setBtnGenerarPDF(btnGenerarPDF);
+        eventosComponentes.setLblImagen(lblImagen);
+        eventosComponentes.setPanelImagen(panelImagen);
+        
+        btnSubirPosicionImagen.addActionListener(eventosComponentes);
+        btnBajarPosicionImagen.addActionListener(eventosComponentes);
+        btnAgregar.addActionListener(eventosComponentes);
+        btnEliminar.addActionListener(eventosComponentes);
+        btnLimpiar.addActionListener(eventosComponentes);
+        btnGenerarPDF.addActionListener(eventosComponentes);
+        btnCancelar.addActionListener(eventosComponentes);
+        lstImagenes.addMouseListener(eventosMouse);
+        lstImagenes.addKeyListener(eventosTeclado);
+        btnAgregar.addKeyListener(eventosTeclado);
+        btnSubirPosicionImagen.addKeyListener(eventosTeclado);
+        btnBajarPosicionImagen.addKeyListener(eventosTeclado);
+        btnEliminar.addKeyListener(eventosTeclado);
+        btnLimpiar.addKeyListener(eventosTeclado);
         this.addWindowListener(new EventoCerrarForm());
         
         lstImagenes.setDropTarget(new DropTarget() {
@@ -184,7 +191,7 @@ public class ConfirmarOrden extends JFrame{
                 try {
                     evt.acceptDrop(DnDConstants.ACTION_COPY);
                     List<File> rutas = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-                    accionesJList.agregarArchivo(modelo, rutas);
+                    accionesJList.agregarArchivosAJList(modelo, rutas);
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null, "Ha ocurrido un error inesperado "  + ex.getMessage(), "Error inesperado", JOptionPane.ERROR_MESSAGE);
                 }
@@ -192,131 +199,7 @@ public class ConfirmarOrden extends JFrame{
         });
         
     }
-    
-    public class EventosMouse implements MouseListener{  
-        @Override
-        public void mousePressed(MouseEvent e) {
-            
-            if (e.getClickCount() == 1) {
-                accionesImagenes.mostrarImagenEnCambioDeFoco(lstImagenes, modelo, panelImagen, lblImagen);
-            }
-            
-            if(e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)){
-                explorador.abrirRutaEnComputadora(lstImagenes, modelo);
-            }
-            
-        }
-        @Override
-        public void mouseClicked(MouseEvent e) {}
-        @Override
-        public void mouseReleased(MouseEvent e) {}
-        @Override
-        public void mouseEntered(MouseEvent e) {}
-        @Override
-        public void mouseExited(MouseEvent e) {}
-    }
-    
-    public class EventosTeclado implements KeyListener{
-
-        @Override
-        public void keyTyped(KeyEvent e) {}
-
-        @Override
-        public void keyPressed(KeyEvent e) {
-            if (e.getKeyCode()==KeyEvent.VK_DELETE){
-                accionesJList.eliminarElementoJList(modelo, lstImagenes);
-                accionesImagenes.mostrarImagenEnCambioDeFoco(lstImagenes, modelo, panelImagen, lblImagen);
-            }
-            
-            if(e.getKeyCode()==KeyEvent.VK_ENTER){
-                explorador.abrirRutaEnComputadora(lstImagenes, modelo);
-            }
-            
-            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z){
-                accionesJList.deshacerJList(modelo);
-            }
-            
-            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Y){
-                accionesJList.rehacerJList(modelo);
-            }
-            
-        }
-
-        @Override
-        public void keyReleased(KeyEvent e) {
-            if(e.getKeyCode()==KeyEvent.VK_DOWN || e.getKeyCode()==KeyEvent.VK_UP){
-                accionesImagenes.mostrarImagenEnCambioDeFoco(lstImagenes, modelo, panelImagen, lblImagen);; 
-            }
-        }
-
-    }
-    
-    public class EventosComponentes implements ActionListener{
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            //BOTÓN SUBIR
-            if(e.getSource() == btnSubirPosicionImagen){
-                accionesJList.subirElementoJList(modelo, lstImagenes);
-            }
-            
-            //BOTÓN BAJAR
-            if(e.getSource() == btnBajarPosicionImagen){
-                accionesJList.bajarElementoJList(modelo, lstImagenes);
-            }
-            
-            //BOTÓN AGREGAR
-            if (e.getSource() == btnAgregar ) {
-                accionesJList.agregarArchivo(modelo);
-            }
-
-            //BOTÓN ELIMINAR
-            if(e.getSource() == btnEliminar){
-                accionesJList.eliminarElementoJList(modelo, lstImagenes);
-                accionesImagenes.mostrarImagenEnCambioDeFoco(lstImagenes, modelo, panelImagen, lblImagen);
-            }
-            
-            if(e.getSource() == btnLimpiar){
-                accionesJList.limpiarJList(modelo, lstImagenes);
-            }
-            
-            //BOTÓN CANCELAR
-            if(e.getSource() == btnCancelar){
-                generarPDF.cancelarEjecucion();
-            }
-            
-            //BOTÓN GENERAR
-            if(e.getSource() == btnGenerarPDF){
-                Queue <String> direccionesImagenes = new LinkedList<String>();
-                accionesImagenes.actualizarBufferImagenes(modelo, informacion);
-                accionesGenerales.copiarColas(direccionesImagenes, informacion.getDireccionesImagenes());
-                
-                generarPDF.setDireccionesImagenes(direccionesImagenes);
-                ObservadorEstadoGenerarPDF observadorGenerarPDF = new ObservadorEstadoGenerarPDF(btnGenerarPDF, btnCancelar);
-                generarPDF.addObserver(observadorGenerarPDF);
-                
-                hiloGenerarPDF = new Thread(generarPDF);
-                
-                try {                    
-                    if(explorador.existeArchivo(informacion.getRutaGuardarDocumento() + informacion.getTituloPDF() + ".pdf")){
-                        int respuesta = JOptionPane.showConfirmDialog(null, "El archivo \"" + informacion.getTituloPDF() + "\" Ya existe en la ruta especificada\n" + "¿Desea sobreescribirlo?", "Archivo Existente", JOptionPane.YES_NO_OPTION);
-                        
-                        if(respuesta == 0){
-                            hiloGenerarPDF.start();
-                        }                        
-                    }else{
-                        hiloGenerarPDF.start(); 
-                    }
-                    
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, ex.getMessage(), "ERROR INESPERADO", JOptionPane.ERROR_MESSAGE);
-                }
-                
-            }
-        }
-     
-    }
-    
+   
     public class EventoCerrarForm implements WindowListener{
 
         @Override

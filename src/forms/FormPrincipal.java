@@ -12,37 +12,24 @@ import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.Color;
-//--Importacion Eventos
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-//Importación de Clases
-import diseno.DisenioComponentes;
-import acciones.*;
 import java.awt.Dimension;
+//Importación de Clases
+import diseno.*;
+import acciones.*;
+import eventos.CambiosTextField;
+import eventos.Mouse;
+import eventos.Teclado;
+import eventos.ComponentesFormPrincipal;
+import propiedades.Constantes;
+import propiedades.Metadatos;
+//Otras Importaciones
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.io.File;
-import java.util.Arrays;
-import propiedades.Constantes;
-import propiedades.InformacionGenerales;
-//Otras Importaciones
-import java.util.Queue;
-import java.util.LinkedList;
 import java.util.List;
-import javax.swing.JScrollPane;
-import javax.swing.ListModel;
-import javax.swing.SwingUtilities;
+import java.io.File;
 
 public class FormPrincipal extends JFrame{
 
@@ -84,24 +71,17 @@ public class FormPrincipal extends JFrame{
     private ButtonGroup tipoMargenes;
     //Declaración clases.
     private DisenioComponentes disenio;
-    private InformacionGenerales informacion;
+    private Metadatos informacion;
     private Constantes constantes;
-    private AccionesExploradorArchivos explorador;
-    private EventosComponentes eventosComponentes;
-    private AccionesTextFields accionesTxtFields;
+
     private AccionesJList accionesJList;
-    private AccionesGenerales accionesGenerales;
+
+
     //Variables Globales.
     private DefaultListModel modelo;
-    private String tituloPDF;
-    private String autorPDF;
-    private String margenes;
-    private String rutaPortada;
-    private String rutaGuardarDocumento;
-    private Queue<String> direccionesCarpetas;
 
-    public FormPrincipal(InformacionGenerales informarcion) {
-        this.informacion = informarcion;        
+    public FormPrincipal() {
+        this.informacion = Metadatos.getInstancia();        
         instancias();
         valoresPredeterminados();
         disenioForm();
@@ -124,7 +104,7 @@ public class FormPrincipal extends JFrame{
         tfAutor = new JTextField();
         tfMargenes = new JTextField();
         tfPortada = new JTextField();
-        tfRutaGuardarDoc = new JTextField(rutaGuardarDocumento);
+        tfRutaGuardarDoc = new JTextField();
         btnAjustesPredeterminados = new JButton("Cambiar Ajustes Predeterminados");
         btnPortada = new JButton("Seleccionar");
         btnGuardarDoc = new JButton("Cambiar Ruta");
@@ -145,14 +125,10 @@ public class FormPrincipal extends JFrame{
         rbtnPul = new JRadioButton("pul");
         rbtnPts = new JRadioButton("pts");
         modelo = new DefaultListModel();
-        lstCarpetas = new redimensionamiento(modelo, new Dimension(50, 270));//agregado
+        lstCarpetas = new RedimensionamientoJList(modelo, new Dimension(50, 270));
         //Instancias de Clases.
-        eventosComponentes = new EventosComponentes();
         disenio = new DisenioComponentes();
-        accionesTxtFields = new AccionesTextFields( informacion.getRutaAbrirCarpetaEn(), informacion.getRutaAbrirArchivoEn() );
         accionesJList = new AccionesJList( informacion.getRutaAbrirCarpetaEn(), informacion.getRutaAbrirArchivoEn() );
-        explorador = new AccionesExploradorArchivos();
-        accionesGenerales = new AccionesGenerales();
         constantes = new Constantes();
     }
 
@@ -164,18 +140,12 @@ public class FormPrincipal extends JFrame{
         getContentPane().setBackground(new Color(236, 246, 247));
         this.setLayout(new GridBagLayout());
         this.setLocationRelativeTo(null);
-        //Variables de Metadatos.
-        tituloPDF = informacion.getTituloPDF();
-        autorPDF = informacion.getAutorPDF();
-        rutaPortada = informacion.getRutaPortada();
-        margenes = informacion.getMargenesString();
-        rutaGuardarDocumento = informacion.getRutaGuardarDocumento();
         //Asignación Valores de Campos.
-        tfTitulo.setText(tituloPDF);
-        tfAutor.setText(autorPDF);
-        tfPortada.setText(rutaPortada);
-        tfMargenes.setText(margenes);
-        tfRutaGuardarDoc.setText(rutaGuardarDocumento);
+        tfTitulo.setText( informacion.getTituloPDF() );
+        tfAutor.setText( informacion.getAutorPDF() );
+        tfPortada.setText( informacion.getRutaPortada() );
+        tfMargenes.setText( informacion.getMargenesString() );
+        tfRutaGuardarDoc.setText( informacion.getRutaGuardarDocumento() );
         //Visibilidad y Selección
         if(informacion.getTipoHoja() == constantes.TAMANIO_CARTA){
             rbtnCarta.setSelected(true);
@@ -249,236 +219,46 @@ public class FormPrincipal extends JFrame{
         // -----------Disposición Componentes-----------
         GridBagConstraints gbc = new GridBagConstraints();
 
-        gbc.weightx = 1;
-        gbc.weighty = 1;
-        gbc.gridheight = 1;
-
-        //Fila 0
-        gbc.gridy = 0;
+        DisposicionComponentesFormPrincipal dc = new DisposicionComponentesFormPrincipal(gbc, this);
         
-        gbc.insets = new Insets(10, 0, 10, 0);
-        gbc.gridwidth = 3;
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(lblApartadoMeta, gbc);
-
-        //Fila 1
-        gbc.gridy = 1;
-        
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        add(lblTitulo, gbc);
-
-        gbc.insets = new Insets(0, 0, 0, 30);
-        gbc.gridx = 1;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(tfTitulo, gbc);
-
-        //Fila 2
-        gbc.gridy = 2;
-
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        add(lblAutor, gbc);
-
-        gbc.insets = new Insets(0, 0, 0, 30);
-        gbc.gridx = 1;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(tfAutor, gbc);
-
-        //Fila 3
-        gbc.gridy = 3;
-
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        add(lblPortada, gbc);
-
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(tfPortada, gbc);
-
-        gbc.insets = new Insets(0, 60, 0, 30);
-        gbc.gridx = 2;
-        gbc.anchor = GridBagConstraints.LINE_END;
-        add(btnPortada, gbc);
-
-        //Fila 4
-        gbc.gridy = 4;
-        
-        gbc.insets = new Insets(10, 0, 10, 0);
-        gbc.gridx = 0;
-        gbc.gridwidth = 3;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(lblApartadoAjustes, gbc);
-        
-        //Fila 5
-        gbc.gridy = 5;
-
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.gridwidth = 1;
-        add(lblFormatoHoja, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        add(rbtnA4, gbc);
-
-        gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(rbtnCarta, gbc);
-
-        //Fila 6
-        gbc.gridy = 6;
-        
-        gbc.gridx = 0;
-        add(lblMargenes, gbc);
-        
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(tfMargenes, gbc);
-        
-        gbc.gridx = 2;
-        gbc.insets = new Insets(0, 60, 0, 30);
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        add(rbtnCm, gbc);
-        
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(rbtnPul, gbc);
-        
-        gbc.anchor = GridBagConstraints.LINE_END;
-        add(rbtnPts, gbc);
-        
-        //Fila 7
-        gbc.gridy = 7;
-
-        gbc.gridx = 0;
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(lblGuardarDoc, gbc);
-
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(tfRutaGuardarDoc, gbc);
-
-        gbc.gridx = 2;
-        gbc.insets = new Insets(0, 60, 0, 30);
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(btnGuardarDoc, gbc);
-
-        //Fila 8
-        gbc.gridy = 8;
-        
-        gbc.insets = new Insets(10, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridwidth = 3;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(btnAjustesPredeterminados, gbc);
-        
-        //Fila 9
-        gbc.gridy = 9;
-
-        gbc.insets = new Insets(10, 0, 10, 0);
-        add(lblApartadoSeleccion, gbc);
-
-        //Fila 10
-        gbc.gridy = 10;
-        
-        gbc.insets = new Insets(0, 30, 0, 0);
-        gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        add(btnSubir, gbc);
-        
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.anchor = GridBagConstraints.LINE_END;
-        add(btnBajar);
-        add(btnBajar, gbc);
-        
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(btnAgregar, gbc);
-        
-        gbc.gridx = 2;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        add(btnEliminar, gbc);
-        
-        gbc.insets = new Insets(0, 0, 0, 30);
-        gbc.anchor = GridBagConstraints.LINE_END;
-        add(btnLimpiar, gbc);
-        
-        //Fila 11
-        gbc.gridy = 11;
-        gbc.gridx = 0;
-        gbc.gridwidth = 3;
-        gbc.insets = new Insets(0, 30, 0, 30);
-        gbc.fill = GridBagConstraints.BOTH;
-        add(new JScrollPane(lstCarpetas),gbc);
-        
-        //Fila 12
-        gbc.gridy = 12;
-        gbc.gridwidth = 1;
-
-        gbc.insets = new Insets(0, 30, 0, 0);
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        add(btnCargarCarpetas, gbc);
-
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(btnCargarImagenes, gbc);
-
-        gbc.insets = new Insets(0, 0, 0, 30);
-        gbc.gridx = 2;
-        gbc.anchor = GridBagConstraints.LINE_END;
-        add(btnActualizar, gbc);
-
-        //Fila 13
-        gbc.gridy = 13;
-
-        gbc.insets = new Insets(0, 0, 0, 30);
-        gbc.gridx = 0;
-        gbc.gridwidth = 3;
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(lblPieDePagina, gbc);
-        
-        gbc.gridx = 2;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.LINE_END;
-        add(btnInfo, gbc);
+        dc.valoresPredeterminados();
+        dc.disposicionFila1(lblApartadoMeta);
+        dc.disposicionFila2(lblTitulo, tfTitulo);
+        dc.disposicionFila3(lblAutor, tfAutor);
+        dc.disposicionFila4(lblPortada, tfPortada, btnPortada);
+        dc.disposicionFila5(lblApartadoAjustes);
+        dc.disposicionFila6(lblFormatoHoja, rbtnA4, rbtnCarta);
+        dc.disposicionFila7(lblMargenes, tfMargenes, rbtnCm, rbtnPul, rbtnPts);
+        dc.disposicionFila8(lblGuardarDoc, tfRutaGuardarDoc, btnGuardarDoc);
+        dc.disposicionFila9(btnAjustesPredeterminados);
+        dc.disposicionFila10(lblApartadoSeleccion);
+        dc.disposicionFila11(btnSubir, btnBajar, btnAgregar, btnEliminar, btnLimpiar);
+        dc.disposicionFila12(lstCarpetas);
+        dc.disposicionFila13(btnCargarCarpetas, btnCargarImagenes, btnActualizar);
+        dc.disposicionFila14(lblPieDePagina, btnInfo);
         
         this.setVisible(true);
 
     }
-
-    public class redimensionamiento<E> extends JList<E> {
-    
-        private Dimension visibilidadDelPanel;
-
-        public redimensionamiento(ListModel<E> modelo, Dimension visibilidadDelPanel) {
-            super(modelo);
-            this.visibilidadDelPanel = visibilidadDelPanel;
-        }
-
-        @Override
-        public Dimension getPreferredScrollableViewportSize() {
-            if (visibilidadDelPanel != null) {
-                return visibilidadDelPanel;
-            }
-            return super.getPreferredScrollableViewportSize();
-        }
-
-    }
     
     private void eventos(){
+        ComponentesFormPrincipal eventosComponentes = new ComponentesFormPrincipal(modelo, lstCarpetas, accionesJList);
+        CambiosTextField cambiosTextField = new CambiosTextField(btnActualizar);
+        Teclado eventosTeclado = new Teclado(modelo, lstCarpetas, accionesJList, tfMargenes, "FormPrincipal");
+        Mouse eventosMouse = new Mouse(modelo, lstCarpetas, "FormPrincipal");
+        
+        eventosComponentes.setBtnActualizar(btnActualizar);
+        eventosComponentes.setBtnCargarCarpetas(btnCargarCarpetas);
+        eventosComponentes.setBtnCargarImagenes(btnCargarImagenes);
+        eventosComponentes.setRbtnCm(rbtnCm);
+        eventosComponentes.setRbtnPts(rbtnPts);
+        eventosComponentes.setRbtnPul(rbtnPul);
+        eventosComponentes.setTfAutor(tfAutor);
+        eventosComponentes.setTfMargenes(tfMargenes);
+        eventosComponentes.setTfRutaGuardarDoc(tfRutaGuardarDoc);
+        eventosComponentes.setTfPortada(tfPortada);
+        eventosComponentes.setTfTitulo(tfTitulo);
+        
         btnPortada.addActionListener(eventosComponentes);
         btnAjustesPredeterminados.addActionListener(eventosComponentes);
         btnGuardarDoc.addActionListener(eventosComponentes);
@@ -496,19 +276,19 @@ public class FormPrincipal extends JFrame{
         rbtnCm.addActionListener(eventosComponentes);
         rbtnPts.addActionListener(eventosComponentes);
         rbtnPul.addActionListener(eventosComponentes);
-        tfTitulo.getDocument().addDocumentListener(new cambiosTextField());
-        tfAutor.getDocument().addDocumentListener(new cambiosTextField());
-        tfPortada.getDocument().addDocumentListener(new cambiosTextField());
-        tfRutaGuardarDoc.getDocument().addDocumentListener(new cambiosTextField());
-        tfMargenes.getDocument().addDocumentListener(new cambiosTextField());
-        tfMargenes.addKeyListener(new EventosTeclado());
-        lstCarpetas.addMouseListener(new EventosMouse());
-        lstCarpetas.addKeyListener(new EventosTeclado());
-        btnAgregar.addKeyListener(new EventosTeclado());
-        btnBajar.addKeyListener(new EventosTeclado());
-        btnSubir.addKeyListener(new EventosTeclado());
-        btnEliminar.addKeyListener(new EventosTeclado());
-        btnLimpiar.addKeyListener(new EventosTeclado());
+        tfTitulo.getDocument().addDocumentListener(cambiosTextField);
+        tfAutor.getDocument().addDocumentListener(cambiosTextField);
+        tfPortada.getDocument().addDocumentListener(cambiosTextField);
+        tfRutaGuardarDoc.getDocument().addDocumentListener(cambiosTextField);
+        tfMargenes.getDocument().addDocumentListener(cambiosTextField);
+        tfMargenes.addKeyListener(eventosTeclado);
+        lstCarpetas.addMouseListener(eventosMouse);
+        lstCarpetas.addKeyListener(eventosTeclado);
+        btnAgregar.addKeyListener(eventosTeclado);
+        btnBajar.addKeyListener(eventosTeclado);
+        btnSubir.addKeyListener(eventosTeclado);
+        btnEliminar.addKeyListener(eventosTeclado);
+        btnLimpiar.addKeyListener(eventosTeclado);
         
         lstCarpetas.setDropTarget(new DropTarget() {
             @Override
@@ -516,255 +296,13 @@ public class FormPrincipal extends JFrame{
                 try {
                     evt.acceptDrop(DnDConstants.ACTION_COPY);
                     List<File> rutas = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-                    accionesJList.agregarCarpetas(modelo, rutas);
+                    accionesJList.agregarCarpetasAJList(modelo, rutas);
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null, "Ha ocurrido un error inesperado "  + ex.getMessage(), "Error inesperado", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
         
-    }
-
-    private void actualizarMetadatos(){
-        tituloPDF = tfTitulo.getText();
-        autorPDF = tfAutor.getText();
-        margenes = tfMargenes.getText();
-        rutaPortada = tfPortada.getText();
-        rutaGuardarDocumento = tfRutaGuardarDoc.getText();
-
-        if( !tituloPDF.equals("") && !informacion.getTituloPDF().equals( tituloPDF ) ){
-            informacion.setTituloPDF( tituloPDF );
-        }
-
-        if(!autorPDF.equals("") && !informacion.getAutorPDF().equals( autorPDF ) ){
-            informacion.setAutorPDF(autorPDF);
-        }
-
-        if( !informacion.getRutaPortada().equals(rutaPortada) ){
-            if(rutaPortada.equals("") || explorador.existeArchivo( rutaPortada )){
-                informacion.setRutaPortada( rutaPortada );
-            }else{
-                rutaPortada = "";
-                informacion.setRutaPortada( rutaPortada );
-            }
-        }
-
-        if( !margenes.equals("")){
-            if(rbtnCm.isSelected()){
-                informacion.setMargenesFloat( accionesGenerales.cmApts(margenes) );
-            }else if(rbtnPul.isSelected()){
-                informacion.setMargenesFloat( accionesGenerales.pulApts(margenes) );
-            }else{
-                informacion.setMargenesFloat( accionesGenerales.margenesTxtAFloat(margenes) );
-            }
-        }
-        
-        if(!rutaGuardarDocumento.endsWith("\\") && !rutaGuardarDocumento.endsWith("/")){
-                rutaGuardarDocumento += "\\";
-        }
-
-        if(explorador.existeArchivo( rutaGuardarDocumento )){
-            informacion.setRutaGuardarDocumento( rutaGuardarDocumento );
-        }
-        
-        disenio.desactivarBtnActualizarMeta(btnActualizar);
-        
-    }
-   
-    public class EventosMouse implements MouseListener, MouseMotionListener{  
-        @Override
-        public void mouseDragged(MouseEvent e) {
-            if(e.getSource() == lstCarpetas){
-                System.out.println("Mouse Dragged");
-            }
-        }
-
-        @Override
-        public void mouseMoved(MouseEvent e) {
-            System.out.println("Mouse Moved");
-        }
-        
-        @Override
-        public void mousePressed(MouseEvent e) {
-            if(e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)){
-                explorador.abrirRutaEnComputadora(lstCarpetas, modelo);
-            }
-        }
-        @Override
-        public void mouseClicked(MouseEvent e) {}
-        @Override
-        public void mouseReleased(MouseEvent e) {}
-        @Override
-        public void mouseEntered(MouseEvent e) {}
-        @Override
-        public void mouseExited(MouseEvent e) {}
-    }
-    
-    public class EventosTeclado implements KeyListener{
-
-        @Override
-        public void keyTyped(KeyEvent e) {
-            if(e.getSource() == tfMargenes){
-                int teclaPresionada = (int) e.getKeyChar();
-                accionesTxtFields.verificarTeclaIngresada(e, teclaPresionada);
-            }
-            
-        }
-
-        @Override
-        public void keyPressed(KeyEvent e) {
-            if (e.getKeyCode()==KeyEvent.VK_DELETE){
-                accionesJList.eliminarElementoJList(modelo, lstCarpetas);
-            }
-            
-            if(e.getKeyCode()==KeyEvent.VK_ENTER){
-                explorador.abrirRutaEnComputadora(lstCarpetas, modelo);
-            }
-            
-            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z){
-                accionesJList.deshacerJList(modelo);
-            }
-            
-            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Y){
-                accionesJList.rehacerJList(modelo);
-            }
-            
-        }
-
-        @Override
-        public void keyReleased(KeyEvent e) {}
-
-    }
-    
-    public class cambiosTextField implements DocumentListener{
-
-        @Override
-        public void insertUpdate(DocumentEvent e) {
-            disenio.activarBtnActualizarMeta(btnActualizar);
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-            disenio.activarBtnActualizarMeta(btnActualizar);
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent e) {}
-        
-    }
-    
-    public class EventosComponentes implements ActionListener{
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            
-            //RADIO BUTTON A4
-            if(e.getSource() == rbtnA4){
-                informacion.setTipoHoja(constantes.TAMANIO_A4);
-            }
-            
-            //RADIO BUTTON CARTA
-            if(e.getSource() == rbtnCarta){
-                informacion.setTipoHoja(constantes.TAMANIO_CARTA);
-            }
-            
-            //RADIO BUTTON CM / PUL / PTS
-            if(e.getSource() == rbtnCm || e.getSource() == rbtnPul || e.getSource() == rbtnPts){
-                disenio.activarBtnActualizarMeta(btnActualizar);
-            }
-            
-            //BOTÓN PORTADA
-            if (e.getSource() == btnPortada ) {
-                accionesTxtFields.colocarRutaArchivo(tfPortada);
-            }
-
-            //BOTÓN AJUSTES PREDETERMINADOS
-            if(e.getSource() == btnAjustesPredeterminados){
-                actualizarMetadatos();
-                Ajustes ajustes = new Ajustes(informacion);
-            }
-            
-            //BOTÓN GUARDAR DOC
-            if(e.getSource() == btnGuardarDoc){
-                accionesTxtFields.colocarRutaCarpeta(tfRutaGuardarDoc);
-            }
-
-            //BOTÓN SUBIR
-            if(e.getSource() == btnSubir){
-                accionesJList.subirElementoJList(modelo, lstCarpetas);
-            }
-            
-            //BOTÓN BAJAR
-            if(e.getSource() == btnBajar){
-                accionesJList.bajarElementoJList(modelo, lstCarpetas);
-            }
-            
-            //BOTÓN ELIMINAR
-            if(e.getSource() == btnEliminar){
-                accionesJList.eliminarElementoJList(modelo, lstCarpetas);
-            }
-            
-            //BOTÓN LIMPIAR
-            if(e.getSource() == btnLimpiar){
-                //modelo.clear();
-                accionesJList.limpiarJList(modelo, lstCarpetas);
-            }
-
-            //BOTÓN AGREGAR
-            if (e.getSource() == btnAgregar ) {
-
-                int respuesta = JOptionPane.showConfirmDialog(null, "¿Desea agregar subcarpetas?", "Subcarpetas", JOptionPane.YES_NO_OPTION);
-
-                if(respuesta == JOptionPane.YES_OPTION){
-                    accionesJList.agregarCarpetasRecursivamente(modelo);
-                }else if(respuesta == 1){
-                    accionesJList.agregarCarpetas(modelo);
-                }
-
-           }
-
-            //BOTÓN CARGAR
-            if(e.getSource() == btnCargarCarpetas){
-                
-                if(!modelo.isEmpty()){
-
-                    actualizarMetadatos();
-                    
-                    //Comparten misma dirección en memoria.
-                    direccionesCarpetas = accionesJList.obtenerDireccionesJLista(modelo);
-                    
-                    if(!direccionesCarpetas.isEmpty()){
-                        ConfirmarOrden confirmarOrden = new ConfirmarOrden(informacion, direccionesCarpetas, btnCargarCarpetas, btnCargarImagenes);
-                    }else{
-                        JOptionPane.showMessageDialog(null, "La o las carpetas no se han podido cargar, asegurese que todos los directorios sean existentes.", "Error al cargar carpetas", JOptionPane.ERROR_MESSAGE);
-                    }
-
-                }else{
-                    JOptionPane.showMessageDialog(null, "¡Ánimate! Agregra una carpeta :D", ":3", JOptionPane.INFORMATION_MESSAGE);
-                }
-
-            }
-
-            //BOTÓN CARGAR IMAGENES
-            if(e.getSource() == btnCargarImagenes){                
-                actualizarMetadatos();
-                direccionesCarpetas = new LinkedList<String>();
-                ConfirmarOrden confirmarOrden = new ConfirmarOrden(informacion, direccionesCarpetas, btnCargarCarpetas, btnCargarImagenes);
-
-            }
-
-            //BOTÓN Actualizar
-            if(e.getSource() == btnActualizar){
-                actualizarMetadatos();
-                disenio.desactivarBtnActualizarMeta(btnActualizar);
-            }
-            
-            if(e.getSource() == btnInfo){
-                
-            }
-            
-        }
-
     }
 
 }

@@ -15,7 +15,7 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
 import java.io.FileNotFoundException;
 //Importaciones Clases
-import propiedades.InformacionGenerales;
+import propiedades.Metadatos;
 import propiedades.Constantes;
 //Otras Importaciones
 import java.io.IOException;
@@ -25,7 +25,7 @@ import javax.swing.JOptionPane;
 
 public class GenerarPDF extends Observable implements Runnable{
     //Declaración de Clases
-    InformacionGenerales informacion;
+    Metadatos informacion;
     Constantes constantes;
     //Otras Declaraciones
     Queue <String> direccionesImagenes;
@@ -33,9 +33,10 @@ public class GenerarPDF extends Observable implements Runnable{
     private static final PdfNumber VERTICAL = new PdfNumber(0);
     private static final PdfNumber HORIZONTAL = new PdfNumber(90);
     private boolean cancelar = false;
-   
-    public GenerarPDF(InformacionGenerales informacionGeneral){
-        this.informacion = informacionGeneral;
+    private boolean estaCreandoPDF = false;
+    
+    public GenerarPDF(){
+        this.informacion = Metadatos.getInstancia();
         this.constantes = new Constantes();
     }
     
@@ -51,27 +52,27 @@ public class GenerarPDF extends Observable implements Runnable{
     private int crearPDF() throws IOException {
         
         OrientacionPaginaEvento orientacion = new OrientacionPaginaEvento();
+        estaCreandoPDF = true;
         Document documento = colocarMetadatos(orientacion);
         
         int cantidadImagenes = direccionesImagenes.size();
+
+        cantidadImagenes = noImagenesAgregadas(cantidadImagenes); // -----------Cola sin imagenes-----------
         
-        // -----------Cola sin imagenes-----------
-        cantidadImagenes = noImagenesAgregadas(cantidadImagenes);
-        
-        // -----------Colocar imagenes en PDF-----------
         cantidadImagenes = colocarImagenesEnPDF(documento, cantidadImagenes, orientacion);
 
         documento.close();
+        estaCreandoPDF = false;
+        
         JOptionPane.showMessageDialog(null, cantidadImagenes + " imagenes se han convertido al archivo PDF :D" + "\nEl documento ha sido generado en: " + informacion.getRutaGuardarDocumento());
+        
         return cantidadImagenes;
     }
     
     private Document colocarMetadatos (OrientacionPaginaEvento orientacion) throws FileNotFoundException{
         PdfWriter titulo = new PdfWriter(informacion.getRutaGuardarDocumento() + informacion.getTituloPDF() + ".pdf");
         PdfDocument pdf = new PdfDocument(titulo);
-        Document documento = new Document(pdf);
         
-        // -----------Metadatos-----------
         if(informacion.getTipoHoja() == 1){
             pdf.setDefaultPageSize(PageSize.A4);
         }else{
@@ -79,9 +80,10 @@ public class GenerarPDF extends Observable implements Runnable{
         }
         
         pdf.addEventHandler(PdfDocumentEvent.START_PAGE, orientacion);
-        
-        
+                
         float[] margenes = informacion.getMargenesFloat();
+        
+        Document documento = new Document(pdf);
         
         documento.setTopMargin( margenes[constantes.MARGEN_SUPERIOR] );
         documento.setRightMargin( margenes[constantes.MARGEN_DERECHO] );
@@ -92,7 +94,7 @@ public class GenerarPDF extends Observable implements Runnable{
         
         metadatos.setTitle(informacion.getTituloPDF());
         metadatos.setAuthor(informacion.getAutorPDF());
-        
+        metadatos.setCreator("Manga Images Converter");
         return documento;
     }
     

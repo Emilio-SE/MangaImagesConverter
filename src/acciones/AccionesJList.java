@@ -6,41 +6,41 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Stack;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import sistemaUndoRedo.DeshacerRehacer;
 
-public class AccionesJList {
+public class AccionesJList extends DeshacerRehacer{
     
     private String abrirCarpetasEn;
     private String abrirArchivosEn;
     private AccionesExploradorArchivos explorador;
-    private Stack<instanciasJList>accionesPreviasJList;
-    private Stack<instanciasJList>accionesSiguientesJList;
+    private AccionesImagenes accionesImagenes;
+    private AccionesArchivos accionesArchivos;
+    
     
     public AccionesJList(String abrirCarpetasEn, String abrirArchivosEn){
         explorador = new AccionesExploradorArchivos();
+        accionesImagenes = new AccionesImagenes();
+        accionesArchivos = new AccionesArchivos();
         this.abrirCarpetasEn = abrirCarpetasEn;
         this.abrirArchivosEn = abrirArchivosEn;
-        accionesPreviasJList = new Stack<instanciasJList>();
-        accionesSiguientesJList = new Stack<instanciasJList>();
-        
     }
     
-    public DefaultListModel agregarArchivo(DefaultListModel modelo){
+    public DefaultListModel agregarArchivosAJList(DefaultListModel modelo){
         String rutas[] = explorador.abrirExploradorArchivos(abrirArchivosEn);
         colocarArchivosEnModelo(modelo, rutas);
         return modelo;
     }
     
-    public DefaultListModel agregarArchivo(DefaultListModel modelo, List<File> rutas){
+    public DefaultListModel agregarArchivosAJList(DefaultListModel modelo, List<File> rutas){
         
         List<String> listadoRutas = new ArrayList();
         
         for(File ruta : rutas){
             if(ruta.isFile()){
-                if( explorador.esArchivoValido(ruta.toString()) ){
+                if( accionesImagenes.esImagen(ruta.toString()) ){
                     listadoRutas.add( ruta.toString() );
                 }
             }
@@ -70,23 +70,24 @@ public class AccionesJList {
                     agregarNuevaAccionAPila("agregar", ruta, modelo.indexOf(ruta), cantidadElementosArray);
                 }else{
                     agregarNuevaAccionAPila("agregar", ruta, modelo.indexOf(ruta), -1);
+                    
                 }
             }
             
         }
     }
     
-    public DefaultListModel agregarCarpetas(DefaultListModel modelo){
+    public DefaultListModel agregarCarpetasAJList(DefaultListModel modelo){
         List<String> rutasCarpetas = new ArrayList<>();
         rutasCarpetas = Arrays.asList( explorador.abrirExploradorCarpetas(abrirCarpetasEn) );
         
         AccionesGenerales.ordenarListado( rutasCarpetas );
-        colcocarCarpetasEnModelo(modelo, rutasCarpetas);
+        colocarCarpetasEnModelo(modelo, rutasCarpetas);
 
         return modelo;
     }
     
-    public DefaultListModel agregarCarpetas(DefaultListModel modelo, List<File> rutas){
+    public DefaultListModel agregarCarpetasAJList(DefaultListModel modelo, List<File> rutas){
         List<File> rutasArchivos = new ArrayList<>();
         List<String> rutasCarpetas = new ArrayList<>();
         rutasArchivos = rutas;
@@ -102,12 +103,12 @@ public class AccionesJList {
         }
         
         AccionesGenerales.ordenarListado( rutasCarpetas );
-        colcocarCarpetasEnModelo(modelo, rutasCarpetas);
+        colocarCarpetasEnModelo(modelo, rutasCarpetas);
 
         return modelo;
     }
     
-    private void colcocarCarpetasEnModelo(DefaultListModel modelo, List<String> rutasCarpetas){
+    private void colocarCarpetasEnModelo(DefaultListModel modelo, List<String> rutasCarpetas){
         if( !rutasCarpetas.get(0).equals("") ){ 
                 
                 int contadorElementosAgregados = 0;
@@ -128,7 +129,7 @@ public class AccionesJList {
         }
     }
     
-    public DefaultListModel agregarCarpetasRecursivamente(DefaultListModel modelo){
+    public DefaultListModel agregarCarpetasRecursivamenteAJList(DefaultListModel modelo){
         String[] rutasCarpetas = explorador.abrirExploradorCarpetas( abrirCarpetasEn );
         List<String> rutasSubCarpetas = new ArrayList<>();
         Queue<String> rutasCarpetasRaices = new LinkedList<String>();
@@ -197,53 +198,53 @@ public class AccionesJList {
         return subDirectorios;
     }
     
-    public boolean eliminarElementoJList(DefaultListModel modelo, JList lista){
+    public boolean eliminarElementoDeJList(DefaultListModel modelo, JList lista){
         int[] indicesElementosSeleccionados = lista.getSelectedIndices();
         int cantidadElementosArray = indicesElementosSeleccionados.length;
         int elementosEliminados = 0, indiceAEliminar;
         String rutaCarpeta;
         boolean bool = true;
         
-        for(int indiceElementoSeleccionado : indicesElementosSeleccionados){
-            
-            if(indiceElementoSeleccionado != -1){
-                
-                try {
-                    
-                    indiceAEliminar = indiceElementoSeleccionado - elementosEliminados;
-                    rutaCarpeta = modelo.remove(indiceAEliminar).toString();
-                    elementosEliminados++;
-                    
-                    if(elementosEliminados == cantidadElementosArray || elementosEliminados == 1){
-                        agregarNuevaAccionAPila("eliminar", rutaCarpeta, indiceAEliminar, cantidadElementosArray);
-                    }else{
-                        agregarNuevaAccionAPila("eliminar", rutaCarpeta, indiceAEliminar, -1);
-                    }
-                    
-                } catch (IndexOutOfBoundsException e) {
-                    bool = false;
-                }
-                
-            }else{
-                bool = false;
-            }
+        if(cantidadElementosArray > 0){
+        
+            for(int indiceElementoSeleccionado : indicesElementosSeleccionados){
 
-        } 
-        
-        if(modelo.getSize() > 0){
-            int foco = indicesElementosSeleccionados[indicesElementosSeleccionados.length - 1] - elementosEliminados;
-        
-            if(foco < modelo.getSize() - 1){
-                lista.setSelectedIndex(foco + 1);
-            }else if(foco == modelo.getSize() - 1){
-                lista.setSelectedIndex(foco);
+                    try {
+
+                        indiceAEliminar = indiceElementoSeleccionado - elementosEliminados;
+                        rutaCarpeta = modelo.remove(indiceAEliminar).toString();
+                        elementosEliminados++;
+
+                        if(elementosEliminados == cantidadElementosArray || elementosEliminados == 1){
+                            agregarNuevaAccionAPila("eliminar", rutaCarpeta, indiceAEliminar, cantidadElementosArray);
+                        }else{
+                            agregarNuevaAccionAPila("eliminar", rutaCarpeta, indiceAEliminar, -1);
+                        }
+
+                    } catch (IndexOutOfBoundsException e) {
+                        bool = false;
+                    }
+
             }
-        }
+            
+            if(modelo.getSize() > 0){
+                int foco = indicesElementosSeleccionados[indicesElementosSeleccionados.length - 1] - elementosEliminados;
+
+                if(foco < modelo.getSize() - 1){
+                    lista.setSelectedIndex(foco + 1);
+                }else if(foco == modelo.getSize() - 1){
+                    lista.setSelectedIndex(foco);
+                }
+            }
         
+        }else{
+            bool = false;
+        }
+
         return bool;
     }
 
-    public void limpiarJList(DefaultListModel modelo, JList lista){
+    public void limpiarElementosDeJList(DefaultListModel modelo, JList lista){
         
         int cantidadElementos = modelo.size();
         int ultimoIndice = cantidadElementos - 1;
@@ -263,7 +264,7 @@ public class AccionesJList {
         
     }
     
-    public DefaultListModel subirElementoJList(DefaultListModel modelo, JList lista){
+    public DefaultListModel subirElementoEnJList(DefaultListModel modelo, JList lista){
         int[] indicesElementosSeleccionados = lista.getSelectedIndices();
         int cantidadElementosSeleccionados = indicesElementosSeleccionados.length;
         int[] indicesSeleccionados = new int[cantidadElementosSeleccionados];
@@ -314,7 +315,7 @@ public class AccionesJList {
         return modelo;
     }
 
-    public DefaultListModel bajarElementoJList(DefaultListModel modelo, JList lista){
+    public DefaultListModel bajarElementoEnJList(DefaultListModel modelo, JList lista){
         int[] indicesElementosSeleccionados = lista.getSelectedIndices();
         int cantidadElementosSeleccionados = indicesElementosSeleccionados.length;
         int[] indicesSeleccionados = new int[cantidadElementosSeleccionados];
@@ -366,173 +367,7 @@ public class AccionesJList {
         return modelo;
     }
     
-    public void deshacerJList(DefaultListModel modelo){
-        
-        if(!accionesPreviasJList.isEmpty()){
-
-            try{
-                
-                instanciasJList accionAnterior = accionesPreviasJList.pop();
-                accionesSiguientesJList.add(accionAnterior);
-            
-                switch ( accionAnterior.getAccion() ) {
-                    case "agregar":
-                        eliminarElementosJList(modelo, accionAnterior, accionesPreviasJList, accionesSiguientesJList);
-                        break;
-                    case "eliminar":
-                        agregarElementosJList(modelo, accionAnterior, accionesPreviasJList, accionesSiguientesJList, false);
-                        break;
-                    case "sube":
-                        intercambioElementosJList(modelo, accionAnterior, accionesPreviasJList, accionesSiguientesJList, "D");
-                        break;
-                    case "baja":
-                        intercambioElementosJList(modelo, accionAnterior, accionesPreviasJList, accionesSiguientesJList, "D");
-                        break;
-                    case "limpiar":
-                        agregarElementosJList(modelo, accionAnterior, accionesPreviasJList, accionesSiguientesJList, true);
-                        break;
-                    default:
-                        throw new AssertionError();
-                }
-                
-            }catch(Exception e){
-                
-                if(!accionesPreviasJList.isEmpty()){
-                    accionesPreviasJList.clear();
-                }
-                if(!accionesSiguientesJList.isEmpty()){
-                    accionesSiguientesJList.clear();
-                }
-                
-                JOptionPane.showMessageDialog(null, "Ha ocurrido un error en el proceso Undo/Redo. Las pilas se han limpiado.\n\n" + e.getMessage(), "Error en el sistema Undo/Redo", JOptionPane.ERROR_MESSAGE);
-                
-            }
-            
-        }
-        
-    }
-    
-    public void rehacerJList(DefaultListModel modelo){
-        
-        if(!accionesSiguientesJList.isEmpty()){
-            
-            try{
-                
-                instanciasJList accionSiguiente = accionesSiguientesJList.pop();
-                accionesPreviasJList.add(accionSiguiente);
-            
-                switch ( accionSiguiente.getAccion() ) {
-                    case "agregar":
-                        agregarElementosJList(modelo, accionSiguiente, accionesSiguientesJList, accionesPreviasJList, false);
-                        break;
-                    case "eliminar":
-                        eliminarElementosJList(modelo, accionSiguiente, accionesSiguientesJList, accionesPreviasJList);
-                        break;
-                    case "sube":
-                        intercambioElementosJList(modelo, accionSiguiente, accionesSiguientesJList, accionesPreviasJList, "R");
-                        break;
-                    case "baja":    
-                        intercambioElementosJList(modelo, accionSiguiente, accionesSiguientesJList, accionesPreviasJList, "R");
-                        break;
-                    case "limpiar":
-                        eliminarElementosJList(modelo, accionSiguiente, accionesSiguientesJList, accionesPreviasJList);
-                        break;
-                    default:
-                        throw new AssertionError();
-                }
-                
-            }catch(Exception e){
-                if(!accionesPreviasJList.isEmpty()){
-                    accionesPreviasJList.clear();
-                }
-                if(!accionesSiguientesJList.isEmpty()){
-                    accionesSiguientesJList.clear();
-                }
-                
-                JOptionPane.showMessageDialog(null, "Ha ocurrido un error en el proceso Undo/Redo. Las pilas se han limpiado.\n\n" + e.getMessage(), "Error en el sistema Undo/Redo", JOptionPane.ERROR_MESSAGE);
-            }
-            
-        }
-        
-    }
-    
-    private void agregarElementosJList(DefaultListModel modelo, instanciasJList accion, Stack<instanciasJList> pilaAccionesA, Stack<instanciasJList> pilaAccionesB, boolean esAddElement){
-        
-        if( esAddElement ){
-            modelo.addElement( accion.getDireccion() ); 
-        }else{
-            modelo.add( accion.getIndice(), accion.getDireccion() );
-        }
-        
-        int cantidadElementosModificados = accion.getElementosAfectados();
-        
-        for(int i = 0; i < (cantidadElementosModificados - 1); i++){
-            accion = pilaAccionesA.pop();
-            pilaAccionesB.add( accion );
-            
-            if( esAddElement ){
-                modelo.addElement( accion.getDireccion() ); 
-            }else{
-                modelo.add( accion.getIndice(), accion.getDireccion() );
-            }  
-        }
-        
-    }
-    
-    private void eliminarElementosJList(DefaultListModel modelo, instanciasJList accion, Stack<instanciasJList> pilaAccionesA, Stack<instanciasJList> pilaAccionesB){
-        modelo.remove( accion.getIndice() );
-
-        int cantidadElementosModificados = accion.getElementosAfectados();
-        
-        for(int i = 0; i < (cantidadElementosModificados - 1); i++){
-            accion = pilaAccionesA.pop();
-            pilaAccionesB.add( accion );
-            modelo.remove( accion.getIndice() );
-        }
-    }
-    
-    private void intercambioElementosJList(DefaultListModel modelo, instanciasJList accion, Stack<instanciasJList> pilaAccionesA, Stack<instanciasJList> pilaAccionesB, String procedencia){
-        instanciasJList instanciaAnteriorAnterior = pilaAccionesA.pop();
-        pilaAccionesB.add( instanciaAnteriorAnterior );
-
-        int cantidadElementosModificados = accion.getElementosAfectados();
-
-        if( procedencia.equals("D") ){
-            cambioDePosicionElementosJList(modelo, accion.getDireccion(), instanciaAnteriorAnterior.getDireccion(), accion.getIndice(), instanciaAnteriorAnterior.getIndice());
-        }else{
-            cambioDePosicionElementosJList(modelo, accion.getDireccion(), instanciaAnteriorAnterior.getDireccion(), instanciaAnteriorAnterior.getIndice(), accion.getIndice());
-        }
-
-        for(int i = 0; i < (cantidadElementosModificados - 1); i++){
-
-                accion = pilaAccionesA.pop();
-                pilaAccionesB.add( accion );
-                instanciaAnteriorAnterior = pilaAccionesA.pop();
-                pilaAccionesB.add( instanciaAnteriorAnterior );
-                
-                if( procedencia.equals("D") ){
-                    cambioDePosicionElementosJList(modelo, accion.getDireccion(), instanciaAnteriorAnterior.getDireccion(), accion.getIndice(), instanciaAnteriorAnterior.getIndice());
-                }else{
-                    cambioDePosicionElementosJList(modelo, accion.getDireccion(), instanciaAnteriorAnterior.getDireccion(), instanciaAnteriorAnterior.getIndice(), accion.getIndice());
-                }
-                
-        }
-    }
-    
-    private void cambioDePosicionElementosJList(DefaultListModel modelo, String elementoA, String elementoB, int indiceA, int indiceB){
-        modelo.setElementAt(elementoA, indiceB);
-        modelo.setElementAt(elementoB, indiceA);
-    }
-    
-    public void agregarNuevaAccionAPila(String accion, String direccion, int indiceDireccion, int cantElementosAfectados){
-        accionesPreviasJList.add( new instanciasJList(accion, direccion, indiceDireccion, cantElementosAfectados) );
-        
-        if(!accionesSiguientesJList.isEmpty()){
-            accionesSiguientesJList.clear();
-        }
-    }
-    
-    public DefaultListModel colocarImagenes(DefaultListModel modelo, Queue<String> direccionesCarpetas){
+    public DefaultListModel colocarRutasImagenesEnJList(DefaultListModel modelo, Queue<String> direccionesCarpetas){
         
         int cantidadCarpetas = direccionesCarpetas.size();
         String[] listado;
@@ -554,7 +389,7 @@ public class AccionesJList {
 
                 nombreImagen = listado[indiceImagen];                
 
-                if( esImagen(nombreImagen) ){
+                if( accionesImagenes.esImagen(nombreImagen) ){
                     direccionImagen =  direccionCarpeta + nombreImagen;
                     modelo.addElement(direccionImagen);                    
                 }
@@ -567,30 +402,16 @@ public class AccionesJList {
         
     }
     
-    private boolean esImagen(String nombreImagen){
-        String[] extensionesPermitidas = explorador.getExtensionesPermitidas();
-        int i = 0;
-        boolean confirmacion = false;
-        
-        while(i < extensionesPermitidas.length){
-            if(nombreImagen.toLowerCase().endsWith( "." + extensionesPermitidas[i] )){
-                confirmacion = true;
-                break;
-            }
-            i++;
-        }
-        
-        return confirmacion;
-     }
     
-    public Queue<String> obtenerDireccionesJLista(DefaultListModel modelo){
+    
+    public Queue<String> obtenerRutasDeJLista(DefaultListModel modelo){
         Queue <String> direcciones = new LinkedList<String>();
         int cantidadCarpetas = modelo.getSize();
         int rutasPerdidas = 0;
         
         for (int indice = 0; indice < cantidadCarpetas; indice++) {
             
-            if(explorador.existeArchivo(modelo.getElementAt(indice).toString())){
+            if(accionesArchivos.existeArchivo(modelo.getElementAt(indice).toString())){
                 direcciones.add(modelo.getElementAt(indice).toString());
             }else{
                 rutasPerdidas++;

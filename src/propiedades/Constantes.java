@@ -10,4 +10,5 @@ public class Constantes {
     public final int MARGEN_DERECHO = 1;
     public final int MARGEN_INFERIOR = 2;
     public final int MARGEN_IZQUIERDO = 3;
+    public final String[] EXTENSIONES_PERMITIDAS = new String[] {"jpg", "jpeg", "png", "gif"};;
 }
