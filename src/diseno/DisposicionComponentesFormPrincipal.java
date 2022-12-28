@@ -227,7 +227,7 @@ public class DisposicionComponentesFormPrincipal {
         frame.add(btnActualizar, gbc);
     }
     
-    public void disposicionFila14(JLabel lblPieDePagina, JButton btnInfo){
+    public void disposicionFila14(JLabel lblPieDePagina){
         gbc.gridy = 13;
 
         gbc.insets = new Insets(0, 0, 0, 30);
@@ -236,10 +236,10 @@ public class DisposicionComponentesFormPrincipal {
         gbc.anchor = GridBagConstraints.CENTER;
         frame.add(lblPieDePagina, gbc);
         
-        gbc.gridx = 2;
+        /*gbc.gridx = 2;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.LINE_END;
-        frame.add(btnInfo, gbc);
+        frame.add(btnInfo, gbc);*/
     }
     
 }

@@ -235,7 +235,7 @@ public class FormPrincipal extends JFrame{
         dc.disposicionFila11(btnSubir, btnBajar, btnAgregar, btnEliminar, btnLimpiar);
         dc.disposicionFila12(lstCarpetas);
         dc.disposicionFila13(btnCargarCarpetas, btnCargarImagenes, btnActualizar);
-        dc.disposicionFila14(lblPieDePagina, btnInfo);
+        dc.disposicionFila14(lblPieDePagina);
         
         this.setVisible(true);
 
