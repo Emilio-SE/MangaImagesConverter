@@ -1,5 +1,11 @@
 # Manga Images Converter
 
+## ⚠️ Proyecto descontinuado
+
+Manga Images Converter ha sido descontinuado y ya no recibirá futuras actualizaciones, sin embargo, el proyecto ha migrado a [ImgBinder](https://github.com/Emilio-SE/ImgBinder), una opción en formato PWA, gratuita y de código abierto.
+
+El proyecto se encuentra en desarrollo en: https://github.com/Emilio-SE/ImgBinder
+
 ## ¿Qué es?
 
 Manga Images Converter (M.I.C.) es una aplicación de escritorio ligera desarrollada en Java que te permite convertir una cantidad indefinida de imagenes (en formato .jpg, .jpeg, .png, .gif) a PDF.
